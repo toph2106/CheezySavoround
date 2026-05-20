@@ -1,0 +1,39 @@
+# Các thư mục hệ thống tự đẻ ra của Unity (Rất nặng và vô dụng khi đẩy lên Git)
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+
+# Cache của Visual Studio
+.vs/
+
+# Các file tự sinh của Visual Studio (Không cần đẩy lên vì người khác tải về Unity sẽ tự tạo lại)
+ExportedObj/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Các file rác tự sinh khi Unity crash
+sysinfo.txt
+
+# Chặn đẩy file Build game nặng lên mạng
+*.apk
+*.aab
+*.unitypackage
+*.app
+*.exe
