@@ -123,6 +123,9 @@ public class GridManager : MonoBehaviour
         _isProcessing = true;
         _pendingMerge = false;
 
+        if (GameManager.Instance != null)
+            GameManager.Instance.ChangeState(GameState.CheckingCombo);
+
         yield return new WaitForSeconds(initialDelay);
 
         bool merged = true;
@@ -215,6 +218,11 @@ public class GridManager : MonoBehaviour
         {
             _pendingMerge = false;
             StartCoroutine(ProcessAllMerges());
+        }
+        else
+        {
+            if (GameManager.Instance != null)
+                GameManager.Instance.ChangeState(GameState.Playing);
         }
     }
 

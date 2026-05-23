@@ -19,7 +19,7 @@ public class PlateItem : MonoBehaviour
     private Vector3 _startPos;
     private Slot _hoveredSlot;
     private bool _isDragging = false;
-    private bool _isLocked = false;
+    private bool _isPlaced = false;
     private GridManager _gridManager;
 
     void Start()
@@ -45,7 +45,8 @@ public class PlateItem : MonoBehaviour
 
     void Update()
     {
-        if (_isLocked || isExploding) return;
+        if (_isPlaced || isExploding) return;
+        if (GameManager.Instance == null || !GameManager.Instance.IsPlaying()) return;
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -86,7 +87,7 @@ public class PlateItem : MonoBehaviour
         pos.y += 0.2f;
         transform.position = pos;
 
-        _isLocked = true;
+        _isPlaced = true;
         slot.isEmpty = false;
         slot.currentPlate = this;
         mySlot = slot;
