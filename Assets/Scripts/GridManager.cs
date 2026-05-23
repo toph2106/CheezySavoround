@@ -18,21 +18,13 @@ public class LevelData
     public DisabledSlotData[] disabledSlots;
 }
 
-/// <summary>
-/// Thuật toán merge tập trung:
-///   1) Quét toàn grid tìm cặp đĩa lân cận có chung loại pizza
-///   2) Áp dụng "nhiều ăn ít": đĩa ít miếng gửi sang đĩa nhiều miếng
-///   3) Bằng nhau → gửi từ đĩa có nhiều loại hơn (để gom nhanh)
-///   4) Sau mỗi bước: dọn đĩa rỗng, kiểm tra Bloom (6 cùng loại → nổ)
-///   5) Lặp cho đến khi không còn merge nào (chain reaction)
-/// </summary>
 public class GridManager : MonoBehaviour
 {
     [Header("Grid Config")]
     public int currentLevel = 1;
     public GameObject tilePrefab;
     public Transform gridParent;
-    public float spacing = 1.1f;
+    public float spacing = 4f;
 
     [Header("Merge Timing")]
     public float initialDelay = 0.2f;
@@ -71,15 +63,19 @@ public class GridManager : MonoBehaviour
             foreach (var ds in data.disabledSlots)
                 disabled.Add(new Vector2Int(ds.x, ds.y));
 
+        float offsetX = (_cols - 1f) * spacing / 2f;
+        float offsetZ = (_rows - 1f) * spacing / 2f;
+
         for (int x = 0; x < _cols; x++)
         {
             for (int z = 0; z < _rows; z++)
             {
                 if (disabled.Contains(new Vector2Int(x, z))) continue;
 
-                Vector3 pos = new Vector3(x * spacing, 0, z * spacing);
-                GameObject tile = Instantiate(tilePrefab, pos, Quaternion.identity, gridParent);
+                GameObject tile = Instantiate(tilePrefab, gridParent);
                 tile.name = $"Tile_{x}_{z}";
+
+                tile.transform.localPosition = new Vector3((x * spacing) - offsetX, 0, (z * spacing) - offsetZ);
 
                 Slot slot = tile.GetComponent<Slot>();
                 slot.Initialize(x, z);
@@ -221,8 +217,32 @@ public class GridManager : MonoBehaviour
         }
         else
         {
-            if (GameManager.Instance != null)
-                GameManager.Instance.ChangeState(GameState.Playing);
+            CheckGameOver();
+        }
+    }
+
+    private void CheckGameOver()
+    {
+        for (int x = 0; x < _cols; x++)
+        {
+            for (int z = 0; z < _rows; z++)
+            {
+                Slot slot = gridArray[x, z];
+                if (slot != null && slot.isEmpty)
+                {
+                    // Vẫn còn ô trống -> về Playing
+                    if (GameManager.Instance != null)
+                        GameManager.Instance.ChangeState(GameState.Playing);
+                    return; 
+                }
+            }
+        }
+
+        // Lưới đầy kín, mọi thuật toán merge đã dừng (nếu merge được thì đã có ô trống rồi)
+        // -> Hết bước đi -> Game Over
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ChangeState(GameState.GameOver);
         }
     }
 

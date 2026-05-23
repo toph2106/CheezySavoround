@@ -15,6 +15,13 @@ public class GameManager : MonoBehaviour
 
     public GameState CurrentState { get; private set; } = GameState.Menu;
 
+    [Header("UI Components")]
+    public GameObject gameOverPanel;
+
+    [Header("VFX Prefabs")]
+    public GameObject explosionPrefab;
+    public GameObject floatingTextPrefab;
+
     public event Action<GameState, GameState> OnStateChanged;
 
     void Awake()
@@ -25,7 +32,6 @@ public class GameManager : MonoBehaviour
             return;
         }
         Instance = this;
-        DontDestroyOnLoad(gameObject);
     }
 
     void Start()
@@ -41,6 +47,11 @@ public class GameManager : MonoBehaviour
         CurrentState = newState;
         OnStateChanged?.Invoke(oldState, newState);
 
+        if (newState == GameState.GameOver && gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(true);
+        }
+
         Debug.Log($"[GameManager] {oldState} -> {newState}");
     }
 
@@ -51,6 +62,9 @@ public class GameManager : MonoBehaviour
 
     public bool IsInteractable()
     {
-        return CurrentState == GameState.Playing;
+        // Cho phép kéo thả đĩa liên tục ngay cả khi pizza đang bay/merge
+        return CurrentState == GameState.Playing || 
+               CurrentState == GameState.CheckingCombo || 
+               CurrentState == GameState.Animating;
     }
 }

@@ -46,7 +46,7 @@ public class PlateItem : MonoBehaviour
     void Update()
     {
         if (_isPlaced || isExploding) return;
-        if (GameManager.Instance == null || !GameManager.Instance.IsPlaying()) return;
+        if (GameManager.Instance == null || !GameManager.Instance.IsInteractable()) return;
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -87,6 +87,9 @@ public class PlateItem : MonoBehaviour
         pos.y += 0.2f;
         transform.position = pos;
 
+        // Tách khỏi khay chứa để đứng độc lập trên grid
+        transform.SetParent(null); 
+
         _isPlaced = true;
         slot.isEmpty = false;
         slot.currentPlate = this;
@@ -94,6 +97,12 @@ public class PlateItem : MonoBehaviour
 
         foreach (PizzaItem slice in pizzaSlicesOnPlate)
             slice.mySlot = mySlot;
+
+        // Báo cho Khay biết 1 đĩa đã ra đi
+        if (TrayManager.Instance != null)
+        {
+            TrayManager.Instance.OnPlatePlaced();
+        }
 
         if (_gridManager != null)
             _gridManager.ProcessMergesAt(mySlot);
@@ -108,6 +117,19 @@ public class PlateItem : MonoBehaviour
         {
             mySlot.isEmpty = true;
             mySlot.currentPlate = null;
+        }
+
+        // --- Sinh hiệu ứng nổ và điểm số bằng Object Pooler ---
+        if (GameManager.Instance != null && ObjectPooler.Instance != null)
+        {
+            if (GameManager.Instance.explosionPrefab != null)
+            {
+                ObjectPooler.Instance.SpawnFromPool(GameManager.Instance.explosionPrefab, transform.position, GameManager.Instance.explosionPrefab.transform.rotation);
+            }
+            if (GameManager.Instance.floatingTextPrefab != null)
+            {
+                ObjectPooler.Instance.SpawnFromPool(GameManager.Instance.floatingTextPrefab, transform.position, GameManager.Instance.floatingTextPrefab.transform.rotation);
+            }
         }
 
         foreach (PizzaItem s in pizzaSlicesOnPlate)
