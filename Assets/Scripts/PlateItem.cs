@@ -69,15 +69,45 @@ public class PlateItem : MonoBehaviour
                 hit.collider.TryGetComponent(out _hoveredSlot);
             else
                 _hoveredSlot = null;
+
+            if (GhostPreview.Instance != null)
+            {
+                if (_hoveredSlot != null)
+                {
+                    bool isValid = _hoveredSlot.isEmpty;
+                    GhostPreview.Instance.Show(_hoveredSlot, this, isValid);
+                }
+                else
+                {
+                    GhostPreview.Instance.Hide();
+                }
+            }
         }
 
         if (_isDragging && Input.GetMouseButtonUp(0))
         {
             _isDragging = false;
+
+            if (GhostPreview.Instance != null)
+                GhostPreview.Instance.DestroyGhost();
+
             if (_hoveredSlot != null && _hoveredSlot.isEmpty)
+            {
                 PlacePlateOnSlot(_hoveredSlot);
+            }
             else
+            {
+                if (_hoveredSlot != null && !_hoveredSlot.isEmpty && GameJuice.Instance != null)
+                {
+                    GameJuice.Instance.PlayShake(_hoveredSlot.transform);
+
+                    if (_hoveredSlot.currentPlate != null)
+                    {
+                        GameJuice.Instance.PlayShake(_hoveredSlot.currentPlate.transform);
+                    }
+                }
                 transform.position = _startPos;
+            }
         }
     }
 
@@ -87,7 +117,6 @@ public class PlateItem : MonoBehaviour
         pos.y += 0.2f;
         transform.position = pos;
 
-        // Tách khỏi khay chứa để đứng độc lập trên grid
         transform.SetParent(null); 
 
         _isPlaced = true;
@@ -98,10 +127,14 @@ public class PlateItem : MonoBehaviour
         foreach (PizzaItem slice in pizzaSlicesOnPlate)
             slice.mySlot = mySlot;
 
-        // Báo cho Khay biết 1 đĩa đã ra đi
         if (TrayManager.Instance != null)
         {
             TrayManager.Instance.OnPlatePlaced();
+        }
+
+        if (GameJuice.Instance != null)
+        {
+            GameJuice.Instance.PlaySquashStretch(transform);
         }
 
         if (_gridManager != null)
@@ -119,7 +152,11 @@ public class PlateItem : MonoBehaviour
             mySlot.currentPlate = null;
         }
 
-        // --- Sinh hiệu ứng nổ và điểm số bằng Object Pooler ---
+        if (GameJuice.Instance != null)
+        {
+            GameJuice.Instance.PlayExplosionSound();
+        }
+
         if (GameManager.Instance != null && ObjectPooler.Instance != null)
         {
             if (GameManager.Instance.explosionPrefab != null)
