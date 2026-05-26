@@ -119,6 +119,9 @@ public class GridManager : MonoBehaviour
         _isProcessing = true;
         _pendingMerge = false;
 
+        if (GameJuice.Instance != null)
+            GameJuice.Instance.ResetCombo();
+
         if (GameManager.Instance != null)
             GameManager.Instance.ChangeState(GameState.CheckingCombo);
 
@@ -230,7 +233,6 @@ public class GridManager : MonoBehaviour
                 Slot slot = gridArray[x, z];
                 if (slot != null && slot.isEmpty)
                 {
-                    // Vẫn còn ô trống -> về Playing
                     if (GameManager.Instance != null)
                         GameManager.Instance.ChangeState(GameState.Playing);
                     return; 
@@ -238,8 +240,6 @@ public class GridManager : MonoBehaviour
             }
         }
 
-        // Lưới đầy kín, mọi thuật toán merge đã dừng (nếu merge được thì đã có ô trống rồi)
-        // -> Hết bước đi -> Game Over
         if (GameManager.Instance != null)
         {
             GameManager.Instance.ChangeState(GameState.GameOver);
