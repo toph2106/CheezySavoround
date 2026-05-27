@@ -196,7 +196,7 @@ public class SaveSystem : MonoBehaviour
         return true;
     }
 
-
+    // ==================== CÀI ĐẶT ====================
     public void SetSoundEnabled(bool enabled)
     {
         Data.SoundEnabled = enabled;

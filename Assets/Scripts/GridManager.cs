@@ -37,6 +37,18 @@ public class GridManager : MonoBehaviour
     private bool _isProcessing = false;
     private bool _pendingMerge = false;
 
+    public static GridManager Instance { get; private set; }
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
+
     void Start()
     {
         LoadLevel(currentLevel);
