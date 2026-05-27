@@ -51,7 +51,26 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        // Nạp level từ dữ liệu đã lưu (nếu SaveSystem đã sẵn sàng)
+        if (SaveSystem.Instance != null && SaveSystem.Instance.Data != null)
+        {
+            Debug.Log($"[GameManager] Dữ liệu đã tải: Vàng = {SaveSystem.Instance.Data.Gold}");
+        }
+
         ChangeState(GameState.Playing);
+    }
+
+    // === Tự động lưu game khi tắt/tạm dừng ===
+    void OnApplicationQuit()
+    {
+        if (SaveSystem.Instance != null)
+            SaveSystem.Instance.Save();
+    }
+
+    void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus && SaveSystem.Instance != null)
+            SaveSystem.Instance.Save();
     }
 
     void Update()
