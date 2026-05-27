@@ -18,6 +18,8 @@ public class GameManager : MonoBehaviour
     public GameState CurrentState { get; private set; } = GameState.Menu;
 
     [Header("UI Components")]
+    public GameObject menuPanel;
+    public GameObject gamePanel;
     public GameObject gameOverPanel;
 
     [Header("VFX Prefabs")]
@@ -57,6 +59,15 @@ public class GameManager : MonoBehaviour
             Debug.Log($"[GameManager] Dữ liệu đã tải: Vàng = {SaveSystem.Instance.Data.Gold}");
         }
 
+        // Bắt đầu ở màn hình Menu (chờ người chơi bấm Start)
+        ChangeState(GameState.Menu);
+    }
+
+    /// <summary>
+    /// Hàm này được gọi khi người chơi bấm nút "Start" trên Menu.
+    /// </summary>
+    public void StartGame()
+    {
         ChangeState(GameState.Playing);
     }
 

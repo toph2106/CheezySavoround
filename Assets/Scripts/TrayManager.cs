@@ -36,6 +36,12 @@ public class TrayManager : MonoBehaviour
             int rndIndex = Random.Range(0, platePrefabs.Length);
             GameObject obj = Instantiate(platePrefabs[rndIndex], spawnPoints[i].position, Quaternion.identity);
             
+            // Áp dụng Skin đang trang bị
+            if (SkinManager.Instance != null)
+            {
+                SkinManager.Instance.ApplyEquippedSkin(obj);
+            }
+
             // Gắn đĩa làm con của điểm sinh (để quản lý gọn gàng trong Hierarchy)
             obj.transform.SetParent(spawnPoints[i]); 
         }
