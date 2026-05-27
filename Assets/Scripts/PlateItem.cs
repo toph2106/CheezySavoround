@@ -152,9 +152,16 @@ public class PlateItem : MonoBehaviour
             mySlot.currentPlate = null;
         }
 
+        // === Game Juice: Pitch Shift âm thanh nổ theo combo ===
         if (GameJuice.Instance != null)
         {
             GameJuice.Instance.PlayExplosionSound();
+        }
+
+        // === Save System: Thưởng vàng khi nổ đĩa ===
+        if (SaveSystem.Instance != null)
+        {
+            SaveSystem.Instance.AddGold(10);
         }
 
         if (GameManager.Instance != null && ObjectPooler.Instance != null)
