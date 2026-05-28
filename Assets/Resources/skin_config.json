@@ -1,0 +1,39 @@
+{
+  "skins": [
+    {
+      "itemID": "skin_default",
+      "itemName": "Đĩa Gỗ",
+      "goldPrice": 0,
+      "meshName": "",
+      "materialName": ""
+    },
+    {
+      "itemID": "skin_gold",
+      "itemName": "Đĩa Vàng",
+      "goldPrice": 200,
+      "meshName": "Vang",
+      "materialName": "Vang"
+    },
+    {
+      "itemID": "skin_silver",
+      "itemName": "Đĩa Bạc",
+      "goldPrice": 350,
+      "meshName": "Bac",
+      "materialName": "Bac"
+    },
+    {
+      "itemID": "skin_diamond",
+      "itemName": "Đĩa Kim Cương",
+      "goldPrice": 500,
+      "meshName": "Xanh",
+      "materialName": "Xanh"
+    },
+    {
+      "itemID": "skin_pink",
+      "itemName": "Đĩa Hồng",
+      "goldPrice": 800,
+      "meshName": "Hong",
+      "materialName": "Hong"
+    }
+  ]
+}

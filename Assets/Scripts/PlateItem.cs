@@ -26,6 +26,10 @@ public class PlateItem : MonoBehaviour
     {
         _gridManager = FindFirstObjectByType<GridManager>();
 
+        // Đăng ký với SkinManager để được apply skin ngay khi spawn
+        if (SkinManager.Instance != null)
+            SkinManager.Instance.RegisterPlate(this);
+
         if (pizzaPrefabs.Length > 0 && pizzaSlicesOnPlate.Count == 0)
         {
             int count = Random.Range(minSlices, maxSlices + 1);
@@ -41,6 +45,13 @@ public class PlateItem : MonoBehaviour
                 pizzaSlicesOnPlate.Add(slice);
             }
         }
+    }
+
+    void OnDestroy()
+    {
+        // Hủy đăng ký khi đĩa bị xóa
+        if (SkinManager.Instance != null)
+            SkinManager.Instance.UnregisterPlate(this);
     }
 
     void Update()
