@@ -86,6 +86,16 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        // Bấm R để reset save (chỉ dùng lúc test)
+        if (Input.GetKeyDown(KeyCode.R) && Input.GetKey(KeyCode.LeftControl))
+        {
+            if (SaveSystem.Instance != null)
+            {
+                SaveSystem.Instance.DeleteSave();
+                Debug.Log(">>> RESET SAVE XONG! Mở lại game để thấy hiệu lực.");
+            }
+        }
+
         _currentState?.Execute(this);
     }
 

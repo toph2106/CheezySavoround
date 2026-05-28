@@ -270,6 +270,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 80002833}
   m_CullTransparentMesh: 1
+--- !u!1 &80958381
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 80958382}
+  - component: {fileID: 80958383}
+  m_Layer: 0
+  m_Name: SkinManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &80958382
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 80958381}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4487.6436, y: 0, z: 560519.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &80958383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 80958381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c17d3eb5e1be69141aaab53f244e4966, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SkinManager
 --- !u!1 &85792581
 GameObject:
   m_ObjectHideFlags: 0
@@ -794,7 +838,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2068852967}
-        m_TargetAssemblyTypeName: ShopManager, Assembly-CSharp
+        m_TargetAssemblyTypeName: ShopController, Assembly-CSharp
         m_MethodName: CloseShop
         m_Mode: 1
         m_Arguments:
@@ -1402,6 +1446,7 @@ GameObject:
   - component: {fileID: 310472407}
   - component: {fileID: 310472406}
   - component: {fileID: 310472405}
+  - component: {fileID: 310472408}
   m_Layer: 5
   m_Name: CoinS
   m_TagString: Untagged
@@ -1501,9 +1546,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2068852967}
-        m_TargetAssemblyTypeName: ShopManager, Assembly-CSharp
-        m_MethodName: SwitchTab
-        m_Mode: 3
+        m_TargetAssemblyTypeName: ShopController, Assembly-CSharp
+        m_MethodName: ShowCoin
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1520,6 +1565,45 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 310472403}
   m_CullTransparentMesh: 1
+--- !u!114 &310472408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 310472403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d04d481a17fdc8f42aa2aa31d3d40934, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopManager
+  packages:
+  - packageTexture: {fileID: 2800000, guid: b91e6c79bce727243ae85d9cf0d9e528, type: 3}
+    displayPrice: 1,99$
+    goldAmount: 100
+  - packageTexture: {fileID: 2800000, guid: b89a94074899e91469cdf4127c0c0ff8, type: 3}
+    displayPrice: 4,99$
+    goldAmount: 200
+  - packageTexture: {fileID: 2800000, guid: ee7b8738e2fba8f4bae3af8decf1807d, type: 3}
+    displayPrice: 9,99$
+    goldAmount: 300
+  - packageTexture: {fileID: 2800000, guid: aff0a07b36ed58149b1d185f4f50d273, type: 3}
+    displayPrice: 19,99$
+    goldAmount: 400
+  shopPanel: {fileID: 2068852965}
+  itemDisplayImage: {fileID: 1252482943}
+  priceText: {fileID: 317647107}
+  buyButton: {fileID: 1494400700}
+  nextButton: {fileID: 1669018949}
+  prevButton: {fileID: 469630214}
+  pageDots:
+  - {fileID: 1436006650}
+  - {fileID: 1682869260}
+  - {fileID: 165339926}
+  - {fileID: 98738324}
+  dotActiveTexture: {fileID: 2800000, guid: 680f77a0af57b9841b37fe3ce7d1eb1c, type: 3}
+  dotInactiveTexture: {fileID: 2800000, guid: 618985fb3a5024145877a38ddca355b7, type: 3}
+  currentGoldText: {fileID: 0}
 --- !u!1 &317647105
 GameObject:
   m_ObjectHideFlags: 0
@@ -3244,7 +3328,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: a824f52736817f546acf76f47363df93, type: 3}
+  m_Texture: {fileID: 2800000, guid: 930fceebf2fec554c8b53057afd7bb8f, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -3872,13 +3956,14 @@ GameObject:
   - component: {fileID: 1044993855}
   - component: {fileID: 1044993854}
   - component: {fileID: 1044993853}
+  - component: {fileID: 1044993856}
   m_Layer: 5
   m_Name: BoostersS
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1044993852
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3971,9 +4056,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2068852967}
-        m_TargetAssemblyTypeName: ShopManager, Assembly-CSharp
-        m_MethodName: SwitchTab
-        m_Mode: 3
+        m_TargetAssemblyTypeName: ShopController, Assembly-CSharp
+        m_MethodName: ShowBooster
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -3990,6 +4075,49 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1044993851}
   m_CullTransparentMesh: 1
+--- !u!114 &1044993856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1044993851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3287a02731493c8468ef37cb395a7e3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoosterShopManager
+  packages:
+  - boosterID: 21
+    packageTexture: {fileID: 2800000, guid: 5da663b6591afd1469cf08206ebe233c, type: 3}
+    goldPrice: 0
+    amount: 0
+  - boosterID: 22
+    packageTexture: {fileID: 2800000, guid: 31cd538ce132cbd40b58e7e6eb226146, type: 3}
+    goldPrice: 0
+    amount: 0
+  - boosterID: 23
+    packageTexture: {fileID: 2800000, guid: 9ba1207a348fbf24391a60b3e4749c98, type: 3}
+    goldPrice: 0
+    amount: 0
+  - boosterID: 24
+    packageTexture: {fileID: 2800000, guid: 884b6f44dbcd75f4a8d3a3032fd5fedb, type: 3}
+    goldPrice: 0
+    amount: 0
+  shopPanel: {fileID: 2068852965}
+  itemDisplayImage: {fileID: 1596864774}
+  priceText: {fileID: 283639980}
+  buyButton: {fileID: 1553805537}
+  nextButton: {fileID: 1523759987}
+  prevButton: {fileID: 1437460535}
+  pageDots:
+  - {fileID: 467611928}
+  - {fileID: 85792583}
+  - {fileID: 1645910346}
+  - {fileID: 2112922516}
+  dotActiveTexture: {fileID: 2800000, guid: 680f77a0af57b9841b37fe3ce7d1eb1c, type: 3}
+  dotInactiveTexture: {fileID: 2800000, guid: 618985fb3a5024145877a38ddca355b7, type: 3}
+  currentGoldText: {fileID: 0}
 --- !u!1 &1106671012
 GameObject:
   m_ObjectHideFlags: 0
@@ -4120,13 +4248,14 @@ GameObject:
   - component: {fileID: 1124300136}
   - component: {fileID: 1124300135}
   - component: {fileID: 1124300134}
+  - component: {fileID: 1124300137}
   m_Layer: 5
   m_Name: SkinS
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1124300133
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4144,7 +4273,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 104.1, y: -56.51}
+  m_AnchoredPosition: {x: 104.7, y: -53}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1124300134
@@ -4219,9 +4348,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2068852967}
-        m_TargetAssemblyTypeName: ShopManager, Assembly-CSharp
-        m_MethodName: SwitchTab
-        m_Mode: 3
+        m_TargetAssemblyTypeName: ShopController, Assembly-CSharp
+        m_MethodName: ShowSkin
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -4238,6 +4367,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1124300132}
   m_CullTransparentMesh: 1
+--- !u!114 &1124300137
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1124300132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2492a4d325c7ac44a1ed40fa202410a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SkinShopManager
+  packages:
+  - itemID: 11
+    packageTexture: {fileID: 2800000, guid: a6f6e36dbc0a71a48b598ec0c57ed950, type: 3}
+    goldPrice: 0
+    plateMesh: {fileID: -6443363024298187270, guid: d3d78c43fb9efac499c8e10c1d695169, type: 3}
+    plateMaterial: {fileID: 2100000, guid: e4c3ce55ebc200c418b737bee36b1c29, type: 2}
+  - itemID: 12
+    packageTexture: {fileID: 2800000, guid: fe0518dcafb2705469dafe04946cffb3, type: 3}
+    goldPrice: 0
+    plateMesh: {fileID: -6443363024298187270, guid: 7d25c20c18e059b4abd0b2bc1ea60126, type: 3}
+    plateMaterial: {fileID: 2100000, guid: 2049b0c017f1ee04e9a5a0a3fde09ea5, type: 2}
+  - itemID: 13
+    packageTexture: {fileID: 2800000, guid: 5c6edbf6a6c90a947a9618213cb7aa68, type: 3}
+    goldPrice: 0
+    plateMesh: {fileID: -6443363024298187270, guid: 434367d773072bb499be1e62e5b81620, type: 3}
+    plateMaterial: {fileID: 2100000, guid: 51416fff73494db48acc4c7f13c35439, type: 2}
+  - itemID: 14
+    packageTexture: {fileID: 2800000, guid: 67117bc40e7a4af42bc212407275e9b9, type: 3}
+    goldPrice: 0
+    plateMesh: {fileID: -6443363024298187270, guid: 7e1a32e7ec4d4f04baaae32891dfc841, type: 3}
+    plateMaterial: {fileID: 2100000, guid: 531d4359cf6d0e84aadb3d1c33bca941, type: 2}
+  shopPanel: {fileID: 2068852965}
+  itemDisplayImage: {fileID: 1997043874}
+  priceText: {fileID: 1558167731}
+  buyButton: {fileID: 126750468}
+  nextButton: {fileID: 1672022701}
+  prevButton: {fileID: 1291384455}
+  pageDots:
+  - {fileID: 715111217}
+  - {fileID: 466386566}
+  - {fileID: 1280981781}
+  - {fileID: 1166524550}
+  dotActiveTexture: {fileID: 2800000, guid: 680f77a0af57b9841b37fe3ce7d1eb1c, type: 3}
+  dotInactiveTexture: {fileID: 2800000, guid: 618985fb3a5024145877a38ddca355b7, type: 3}
+  currentGoldText: {fileID: 0}
 --- !u!1 &1152217071
 GameObject:
   m_ObjectHideFlags: 0
@@ -5096,7 +5272,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2068852967}
-        m_TargetAssemblyTypeName: ShopManager, Assembly-CSharp
+        m_TargetAssemblyTypeName: ShopController, Assembly-CSharp
         m_MethodName: OpenShop
         m_Mode: 1
         m_Arguments:
@@ -6107,7 +6283,7 @@ RectTransform:
   m_GameObject: {fileID: 1594370698}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 17.139597, y: 2.6340566, z: 7.474408}
+  m_LocalScale: {x: 17.139599, y: 2.6340566, z: 7.4744086}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1802605117}
@@ -6122,7 +6298,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -925.66156, y: 56.81317}
+  m_AnchoredPosition: {x: -932.9978, y: 51.595818}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1594370700
@@ -6145,7 +6321,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: a824f52736817f546acf76f47363df93, type: 3}
+  m_Texture: {fileID: 2800000, guid: 74eb5a7af4814d045ae6e7c47ff8c2c2, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -7572,36 +7748,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 2068852965}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d04d481a17fdc8f42aa2aa31d3d40934, type: 3}
+  m_Script: {fileID: 11500000, guid: d68f844246d2d1843b093f4175ae50c6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ShopManager
-  packages:
-  - packageTexture: {fileID: 2800000, guid: b91e6c79bce727243ae85d9cf0d9e528, type: 3}
-    displayPrice: 1,99$
-    goldAmount: 100
-  - packageTexture: {fileID: 2800000, guid: b89a94074899e91469cdf4127c0c0ff8, type: 3}
-    displayPrice: 4,99$
-    goldAmount: 200
-  - packageTexture: {fileID: 2800000, guid: ee7b8738e2fba8f4bae3af8decf1807d, type: 3}
-    displayPrice: 9,99$
-    goldAmount: 300
-  - packageTexture: {fileID: 2800000, guid: aff0a07b36ed58149b1d185f4f50d273, type: 3}
-    displayPrice: 19,99$
-    goldAmount: 400
-  shopPanel: {fileID: 2068852965}
-  itemDisplayImage: {fileID: 1252482943}
-  priceText: {fileID: 317647107}
-  buyButton: {fileID: 1494400700}
-  nextButton: {fileID: 1669018949}
-  prevButton: {fileID: 469630214}
-  pageDots:
-  - {fileID: 1436006650}
-  - {fileID: 1682869260}
-  - {fileID: 165339926}
-  - {fileID: 98738324}
-  dotActiveTexture: {fileID: 2800000, guid: 680f77a0af57b9841b37fe3ce7d1eb1c, type: 3}
-  dotInactiveTexture: {fileID: 2800000, guid: 618985fb3a5024145877a38ddca355b7, type: 3}
-  currentGoldText: {fileID: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::ShopController
+  coinPanel: {fileID: 192727616}
+  skinPanel: {fileID: 1594370698}
+  boosterPanel: {fileID: 834467882}
 --- !u!1 &2073438563
 GameObject:
   m_ObjectHideFlags: 0
@@ -7999,3 +8151,4 @@ SceneRoots:
   - {fileID: 2073438565}
   - {fileID: 913412494}
   - {fileID: 1003764408}
+  - {fileID: 80958382}
