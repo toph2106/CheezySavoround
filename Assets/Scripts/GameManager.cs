@@ -53,25 +53,16 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // Nạp level từ dữ liệu đã lưu (nếu SaveSystem đã sẵn sàng)
         if (SaveSystem.Instance != null && SaveSystem.Instance.Data != null)
-        {
-            Debug.Log($"[GameManager] Dữ liệu đã tải: Vàng = {SaveSystem.Instance.Data.Gold}");
-        }
 
-        // Bắt đầu ở màn hình Menu (chờ người chơi bấm Start)
         ChangeState(GameState.Menu);
     }
 
-    /// <summary>
-    /// Hàm này được gọi khi người chơi bấm nút "Start" trên Menu.
-    /// </summary>
     public void StartGame()
     {
         ChangeState(GameState.Playing);
     }
 
-    // === Tự động lưu game khi tắt/tạm dừng ===
     void OnApplicationQuit()
     {
         if (SaveSystem.Instance != null)
@@ -86,13 +77,33 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        // Bấm R để reset save (chỉ dùng lúc test)
         if (Input.GetKeyDown(KeyCode.R) && Input.GetKey(KeyCode.LeftControl))
         {
             if (SaveSystem.Instance != null)
             {
                 SaveSystem.Instance.DeleteSave();
-                Debug.Log(">>> RESET SAVE XONG! Mở lại game để thấy hiệu lực.");
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.D) && Input.GetKey(KeyCode.LeftControl))
+        {
+            if (SaveSystem.Instance != null)
+            {
+                SaveSystem.Instance.ResetDailyReward();
+                
+                var dailyUI = FindFirstObjectByType<DailyRewardUI>();
+                if (dailyUI != null) dailyUI.RefreshUI();
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.S) && Input.GetKey(KeyCode.LeftControl))
+        {
+            if (SaveSystem.Instance != null)
+            {
+                SaveSystem.Instance.SkipOneDay();
+                
+                var dailyUI = FindFirstObjectByType<DailyRewardUI>();
+                if (dailyUI != null) dailyUI.RefreshUI();
             }
         }
 

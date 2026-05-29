@@ -21,6 +21,13 @@ public class UserData
     // ==================== NHIỆM VỤ ====================
     public List<QuestData> Quests = new List<QuestData>();
 
+    // ==================== DAILY REWARD ====================
+    public int DailyRewardDay = -1;
+
+    public string LastDailyClaimUTC = "";
+
+    public List<bool> DailyRewardClaimed = new List<bool> { false, false, false, false, false, false, false };
+
     // ==================== CÀI ĐẶT ====================
     public bool SoundEnabled = true;
 

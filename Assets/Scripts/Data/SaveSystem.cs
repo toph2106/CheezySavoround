@@ -195,8 +195,103 @@ public class SaveSystem : MonoBehaviour
         AddGold(goldReward);
         return true;
     }
+    public static int[] DailyGoldRewards = { 50, 75, 100, 150, 200, 300, 500 };
+    public bool CanClaimDailyReward()
+    {
+        if (string.IsNullOrEmpty(Data.LastDailyClaimUTC))
+            return true;
 
-    // ==================== CÀI ĐẶT ====================
+        if (!DateTime.TryParse(Data.LastDailyClaimUTC, null,
+            System.Globalization.DateTimeStyles.RoundtripKind, out DateTime lastClaim))
+        {
+            return true;
+        }
+
+        DateTime nowUTC = DateTime.UtcNow;
+        DateTime lastClaimDate = lastClaim.Date;
+        DateTime todayDate = nowUTC.Date;
+
+        if (todayDate < lastClaimDate)
+        {
+            return false;
+        }
+        int daysPassed = (todayDate - lastClaimDate).Days;
+        return daysPassed >= 1;
+    }
+
+    public int GetDaysSinceLastClaim()
+    {
+        if (string.IsNullOrEmpty(Data.LastDailyClaimUTC)) return -1;
+
+        if (!DateTime.TryParse(Data.LastDailyClaimUTC, null,
+            System.Globalization.DateTimeStyles.RoundtripKind, out DateTime lastClaim))
+            return -1;
+
+        return (DateTime.UtcNow.Date - lastClaim.Date).Days;
+    }
+
+    public int ClaimDailyReward()
+    {
+        if (!CanClaimDailyReward())
+        {
+            return 0;
+        }
+
+        int daysSince = GetDaysSinceLastClaim();
+        if (daysSince < 0 || daysSince > 1)
+        {
+            Data.DailyRewardDay = 0;
+            Data.DailyRewardClaimed = new List<bool> { false, false, false, false, false, false, false };
+        }
+        else
+        {
+            Data.DailyRewardDay++;
+
+            if (Data.DailyRewardDay >= 7)
+            {
+                Data.DailyRewardDay = 0;
+                Data.DailyRewardClaimed = new List<bool> { false, false, false, false, false, false, false };
+            }
+        }
+
+        int day = Data.DailyRewardDay;
+        int goldReward = (day >= 0 && day < DailyGoldRewards.Length) ? DailyGoldRewards[day] : 50;
+
+        Data.DailyRewardClaimed[day] = true;
+
+        Data.LastDailyClaimUTC = DateTime.UtcNow.ToString("o");
+
+        AddGold(goldReward);
+
+        Save();
+
+        Debug.Log($"[DailyReward] Ngày {day + 1}/7 — Nhận {goldReward} vàng! (UTC: {Data.LastDailyClaimUTC})");
+        return goldReward;
+    }
+
+    public void ResetDailyReward()
+    {
+        Data.DailyRewardDay = -1;
+        Data.LastDailyClaimUTC = "";
+        Data.DailyRewardClaimed = new List<bool> { false, false, false, false, false, false, false };
+        Save();
+        OnDataChanged?.Invoke();
+        Debug.Log("[DailyReward] Đã reset Daily Reward!");
+    }
+
+    public void SkipOneDay()
+    {
+        if (string.IsNullOrEmpty(Data.LastDailyClaimUTC)) return;
+
+        if (DateTime.TryParse(Data.LastDailyClaimUTC, null, System.Globalization.DateTimeStyles.RoundtripKind, out DateTime lastClaim))
+        {
+            Data.LastDailyClaimUTC = lastClaim.AddDays(-1.5).ToString("o");
+            Save();
+            OnDataChanged?.Invoke();
+            Debug.Log("[DailyReward] Đã tua nhanh qua ngày hôm sau để test!");
+        }
+    }
+
     public void SetSoundEnabled(bool enabled)
     {
         Data.SoundEnabled = enabled;
@@ -220,6 +315,10 @@ public class SaveSystem : MonoBehaviour
         data.EquippedSkin = "default";
         data.SoundEnabled = true;
         data.MusicEnabled = true;
+
+        data.DailyRewardDay = -1;
+        data.LastDailyClaimUTC = "";
+        data.DailyRewardClaimed = new List<bool> { false, false, false, false, false, false, false };
 
         data.Quests = new List<QuestData>
         {
