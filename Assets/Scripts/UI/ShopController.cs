@@ -1,10 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// Điều phối trung tâm: Bật shop nào thì tắt 2 shop còn lại.
-/// Gắn script này vào ShopPanel (cái bảng gỗ lớn bên ngoài).
-/// OpenShop/CloseShop bật/tắt chính cái ShopPanel này.
-/// </summary>
 public class ShopController : MonoBehaviour
 {
     public static ShopController Instance { get; private set; }
@@ -25,32 +20,17 @@ public class ShopController : MonoBehaviour
         Instance = this;
     }
 
-    // ==================== MỞ / ĐÓNG CẢ SHOP ====================
-
-    /// <summary>
-    /// Gắn vào nút ShopButton ở MenuPanel.
-    /// Bật bảng Shop lên và mặc định hiện Tab Coin.
-    /// </summary>
     public void OpenShop()
     {
-        gameObject.SetActive(true); // Bật chính ShopPanel này lên
-        ShowCoin();                 // Mặc định vào Tab Coin
+        gameObject.SetActive(true);
+        ShowCoin();                
     }
 
-    /// <summary>
-    /// Gắn vào nút X đóng Shop.
-    /// </summary>
     public void CloseShop()
     {
-        gameObject.SetActive(false); // Tắt ShopPanel đi
+        gameObject.SetActive(false);
     }
 
-    // ==================== CHUYỂN TAB ====================
-
-    /// <summary>
-    /// Gắn vào nút Tab Coin.
-    /// Bật CoinS, tắt SkinS + BoostersS.
-    /// </summary>
     public void ShowCoin()
     {
         SetPanels(coinPanel, skinPanel, boosterPanel);
@@ -59,10 +39,7 @@ public class ShopController : MonoBehaviour
             ShopManager.Instance.OpenShop();
     }
 
-    /// <summary>
-    /// Gắn vào nút Tab Skin.
-    /// Bật SkinS, tắt CoinS + BoostersS.
-    /// </summary>
+
     public void ShowSkin()
     {
         SetPanels(skinPanel, coinPanel, boosterPanel);
@@ -71,10 +48,6 @@ public class ShopController : MonoBehaviour
             SkinShopManager.Instance.OpenShop();
     }
 
-    /// <summary>
-    /// Gắn vào nút Tab Boosters.
-    /// Bật BoostersS, tắt CoinS + SkinS.
-    /// </summary>
     public void ShowBooster()
     {
         SetPanels(boosterPanel, coinPanel, skinPanel);
@@ -82,8 +55,6 @@ public class ShopController : MonoBehaviour
         if (BoosterShopManager.Instance != null)
             BoosterShopManager.Instance.OpenShop();
     }
-
-    // ==================== HELPER ====================
 
     private void SetPanels(GameObject active, GameObject hideA, GameObject hideB)
     {

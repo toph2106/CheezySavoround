@@ -26,7 +26,6 @@ public class PlateItem : MonoBehaviour
     {
         _gridManager = FindFirstObjectByType<GridManager>();
 
-        // Đăng ký với SkinManager để được apply skin ngay khi spawn
         if (SkinManager.Instance != null)
             SkinManager.Instance.RegisterPlate(this);
 
@@ -49,7 +48,6 @@ public class PlateItem : MonoBehaviour
 
     void OnDestroy()
     {
-        // Hủy đăng ký khi đĩa bị xóa
         if (SkinManager.Instance != null)
             SkinManager.Instance.UnregisterPlate(this);
     }
@@ -163,13 +161,11 @@ public class PlateItem : MonoBehaviour
             mySlot.currentPlate = null;
         }
 
-        // === Game Juice: Pitch Shift âm thanh nổ theo combo ===
         if (GameJuice.Instance != null)
         {
             GameJuice.Instance.PlayExplosionSound();
         }
 
-        // === Save System: Thưởng vàng khi nổ đĩa ===
         if (SaveSystem.Instance != null)
         {
             SaveSystem.Instance.AddGold(10);

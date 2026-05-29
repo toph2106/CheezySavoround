@@ -24,10 +24,6 @@ public class SkinPackage
     public Material plateMaterial;
 }
 
-/// <summary>
-/// Shop Skin — Mua bằng Vàng, đổi giao diện đĩa.
-/// Clone từ ShopManager (Coin) nhưng xử lý logic Sở hữu / Trang bị.
-/// </summary>
 public class SkinShopManager : MonoBehaviour
 {
     public static SkinShopManager Instance { get; private set; }
@@ -104,7 +100,6 @@ public class SkinShopManager : MonoBehaviour
             SaveSystem.Instance.OnDataChanged -= OnDataChanged;
     }
 
-    // ==================== CHUYỂN TRANG ====================
 
     public void NextItem()
     {
@@ -120,7 +115,6 @@ public class SkinShopManager : MonoBehaviour
         UpdateDisplay();
     }
 
-    // ==================== CẬP NHẬT HIỂN THỊ ====================
 
     private void UpdateDisplay()
     {
@@ -128,29 +122,24 @@ public class SkinShopManager : MonoBehaviour
 
         SkinPackage current = packages[_currentIndex];
 
-        // 1. Đổi ảnh
         if (itemDisplayImage != null && current.packageTexture != null)
             itemDisplayImage.texture = current.packageTexture;
 
-        // 2. Xác định trạng thái
         bool isOwned = SaveSystem.Instance != null && SaveSystem.Instance.HasSkin(current.itemID);
         bool isEquipped = SaveSystem.Instance != null && SaveSystem.Instance.Data.EquippedSkin == current.itemID;
 
-        // Skin miễn phí (giá = 0) tự động unlock
         if (current.goldPrice == 0 && !isOwned && SaveSystem.Instance != null)
         {
             SaveSystem.Instance.UnlockSkin(current.itemID);
             isOwned = true;
         }
 
-        // 3. Cập nhật chữ giá
         if (priceText != null)
         {
             priceText.gameObject.SetActive(!isOwned);
             priceText.text = current.goldPrice.ToString();
         }
 
-        // 4. Cập nhật nút BUY — đổi Ảnh theo trạng thái
         RawImage btnRaw = buyButton != null ? buyButton.GetComponentInChildren<RawImage>() : null;
 
         if (isEquipped)
@@ -170,10 +159,7 @@ public class SkinShopManager : MonoBehaviour
             if (btnRaw != null && btnTextureBuy != null) btnRaw.texture = btnTextureBuy;
         }
 
-        // 5. Chấm tròn
         UpdatePageDots();
-
-        // 6. Vàng
         UpdateGoldText();
     }
 
@@ -192,7 +178,6 @@ public class SkinShopManager : MonoBehaviour
             currentGoldText.text = SaveSystem.Instance.GetGold().ToString();
     }
 
-    // ==================== NÚT BUY ====================
 
     private void OnBuyButtonClicked()
     {
@@ -203,13 +188,11 @@ public class SkinShopManager : MonoBehaviour
 
         if (isOwned)
         {
-            // Đã có -> Trang bị
             SaveSystem.Instance.EquipSkin(current.itemID);
             Debug.Log($"[SkinShop] Đã trang bị: {current.itemID}");
         }
         else
         {
-            // Chưa có -> Mua
             if (SaveSystem.Instance.SpendGold(current.goldPrice))
             {
                 SaveSystem.Instance.UnlockSkin(current.itemID);
@@ -224,18 +207,15 @@ public class SkinShopManager : MonoBehaviour
             }
         }
 
-        // Apply Mesh 3D lên tất cả đĩa đang có trong scene ngay lập tức
         if (SkinManager.Instance != null)
             SkinManager.Instance.ApplyEquippedSkinToAll();
 
-        // Lưu game
         if (SaveSystem.Instance != null)
             SaveSystem.Instance.Save();
 
         UpdateDisplay();
     }
 
-    // ==================== MỞ / ĐÓNG ====================
 
     public void OpenShop()
     {

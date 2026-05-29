@@ -4,9 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-/// <summary>
-/// Dữ liệu 1 gói Coin — cấu hình trực tiếp trong Inspector.
-/// </summary>
 [Serializable]
 public class CoinPackage
 {
@@ -19,10 +16,6 @@ public class CoinPackage
     [Tooltip("Số vàng nhận được khi mua gói này")]
     public int goldAmount = 100;
 }
-
-/// <summary>
-/// Quản lý Shop Coin dạng Carousel (chuyển trang Trái/Phải).
-/// </summary>
 public class ShopManager : MonoBehaviour
 {
     public static ShopManager Instance { get; private set; }
@@ -91,21 +84,18 @@ public class ShopManager : MonoBehaviour
             SaveSystem.Instance.OnDataChanged += OnDataChanged;
         }
 
-        // Gắn sự kiện cho nút BUY
         if (buyButton != null)
         {
             buyButton.onClick.RemoveAllListeners();
             buyButton.onClick.AddListener(OnBuyButtonClicked);
         }
 
-        // Gắn sự kiện cho nút NEXT (Phải)
         if (nextButton != null)
         {
             nextButton.onClick.RemoveAllListeners();
             nextButton.onClick.AddListener(NextItem);
         }
 
-        // Gắn sự kiện cho nút PREV (Trái)
         if (prevButton != null)
         {
             prevButton.onClick.RemoveAllListeners();
@@ -123,7 +113,6 @@ public class ShopManager : MonoBehaviour
         }
     }
 
-    // ==================== CHUYỂN TRANG ====================
 
     public void NextItem()
     {
@@ -139,7 +128,6 @@ public class ShopManager : MonoBehaviour
         UpdateDisplay();
     }
 
-    // ==================== CẬP NHẬT HIỂN THỊ ====================
 
     private void UpdateDisplay()
     {
@@ -147,28 +135,21 @@ public class ShopManager : MonoBehaviour
 
         CoinPackage current = packages[_currentIndex];
 
-        // --- 1. Đổi ảnh ---
         if (itemDisplayImage != null && current.packageTexture != null)
         {
             itemDisplayImage.texture = current.packageTexture;
         }
 
-        // --- 2. Đổi giá ---
         if (priceText != null)
         {
             priceText.text = current.displayPrice;
         }
 
-        // --- 3. Đổi ảnh chấm tròn (tím / gỗ) ---
         UpdatePageDots();
 
-        // --- 4. Cập nhật vàng ---
         UpdateGoldText();
     }
 
-    /// <summary>
-    /// Đổi ảnh chấm tròn: chấm đang chọn = ảnh tím, còn lại = ảnh gỗ.
-    /// </summary>
     private void UpdatePageDots()
     {
         for (int i = 0; i < pageDots.Count; i++)
@@ -194,7 +175,6 @@ public class ShopManager : MonoBehaviour
         }
     }
 
-    // ==================== XỬ LÝ BẤM NÚT BUY ====================
 
     private void OnBuyButtonClicked()
     {
@@ -202,14 +182,12 @@ public class ShopManager : MonoBehaviour
 
         CoinPackage current = packages[_currentIndex];
 
-        // Cộng vàng
         SaveSystem.Instance.AddGold(current.goldAmount);
         Debug.Log($"[Shop] Đã mua gói {current.displayPrice} → +{current.goldAmount} vàng!");
 
         UpdateDisplay();
     }
 
-    // ==================== MỞ / ĐÓNG ====================
 
     public void OpenShop()
     {
