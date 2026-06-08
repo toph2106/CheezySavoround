@@ -20,6 +20,10 @@ public class SaveSystem : MonoBehaviour
 
     public event Action OnDataChanged;
 
+    // === Achievement Events ===
+    public event Action<int> OnGoldEarned;       // amount
+    public event Action<string> OnSkinUnlocked;  // skinID
+
 
     void Awake()
     {
@@ -50,12 +54,13 @@ public class SaveSystem : MonoBehaviour
         try
         {
             string json = JsonUtility.ToJson(Data, true);
-            string encrypted = Encrypt(json);
 
+            // TẠM THỜI: Lưu JSON thuần (không mã hóa) để dễ debug
+            // Khi release, đổi lại thành: File.WriteAllText(path, Encrypt(json));
             string path = GetSavePath();
-            File.WriteAllText(path, encrypted);
+            File.WriteAllText(path, json);
 
-            Debug.Log($"[SaveSystem] Đã lưu game tại: {path}");
+            Debug.Log($"[SaveSystem] Đã lưu game (JSON thuần) tại: {path}");
         }
         catch (Exception e)
         {
@@ -76,8 +81,19 @@ public class SaveSystem : MonoBehaviour
 
         try
         {
-            string encrypted = File.ReadAllText(path);
-            string json = Decrypt(encrypted);
+            string fileContent = File.ReadAllText(path);
+
+            // TẠM THỜI: Đọc JSON thuần trước, nếu thất bại thì thử giải mã AES (file cũ)
+            string json;
+            if (fileContent.TrimStart().StartsWith("{"))
+            {
+                json = fileContent;
+            }
+            else
+            {
+                json = Decrypt(fileContent);
+            }
+
             Data = JsonUtility.FromJson<UserData>(json);
 
             Debug.Log($"[SaveSystem] Đã tải game thành công! Vàng: {Data.Gold}, Skin: {Data.OwnedSkins.Count}, Level: {Data.CurrentLevel}");
@@ -105,6 +121,8 @@ public class SaveSystem : MonoBehaviour
     {
         if (amount <= 0) return;
         Data.Gold += amount;
+        Data.TotalGoldEarned += amount;
+        OnGoldEarned?.Invoke(amount);
         OnDataChanged?.Invoke();
         Debug.Log($"[SaveSystem] +{amount} vàng → Tổng: {Data.Gold}");
     }
@@ -131,6 +149,7 @@ public class SaveSystem : MonoBehaviour
         if (!Data.OwnedSkins.Contains(skinID))
         {
             Data.OwnedSkins.Add(skinID);
+            OnSkinUnlocked?.Invoke(skinID);
             OnDataChanged?.Invoke();
             Debug.Log($"[SaveSystem] Đã mở khóa skin: {skinID}");
         }
@@ -377,5 +396,35 @@ public class SaveSystem : MonoBehaviour
 
             return Encoding.UTF8.GetString(decryptedBytes);
         }
+    }
+
+    // ==================== ACHIEVEMENT ====================
+
+    public AchievementData GetAchievement(string id)
+    {
+        return Data.Achievements.Find(a => a.AchievementID == id);
+    }
+
+    public void UpdateAchievement(string id, int progress, bool unlocked)
+    {
+        AchievementData ach = GetAchievement(id);
+        if (ach == null)
+        {
+            ach = new AchievementData(id);
+            Data.Achievements.Add(ach);
+        }
+        ach.Progress = progress;
+        ach.IsUnlocked = unlocked;
+        OnDataChanged?.Invoke();
+    }
+
+    public bool ClaimAchievementReward(string id, int goldReward)
+    {
+        AchievementData ach = GetAchievement(id);
+        if (ach == null || !ach.IsUnlocked || ach.IsRewardClaimed) return false;
+
+        ach.IsRewardClaimed = true;
+        AddGold(goldReward);
+        return true;
     }
 }

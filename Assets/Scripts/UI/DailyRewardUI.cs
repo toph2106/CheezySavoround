@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -47,34 +48,66 @@ public class DailyRewardUI : MonoBehaviour
     [Header("UI 7 ô ngày (Kéo từ Hierarchy)")]
     public List<DaySlotUI> daySlotUIs = new List<DaySlotUI>();
 
-    [Header("Ảnh nền ô ngày theo trạng thái")]
-    [Tooltip("Ảnh nền ô ngày CHƯA ĐẾN (xám/mờ)")]
+    [Header("Ảnh nền ô ngày")]
+    [Tooltip("Ảnh nền ô bình thường / đã nhận (pu dalily 1)")]
     public Texture slotLockedBG;
 
-    [Tooltip("Ảnh nền ô ngày ĐANG CHỜ NHẬN (sáng/highlight)")]
+    [Tooltip("Ảnh nền ô ĐANG CHỜ NHẬN — to hơn (pu dalily 1.1)")]
     public Texture slotReadyBG;
 
-    [Header("Màu xám khi đã nhận")]
-    [Tooltip("Màu phủ lên ô khi ĐÃ NHẬN (tự làm tối — không cần ảnh riêng)")]
-    public Color claimedDimColor = new Color(0.3f, 0.25f, 0.2f, 1f);
+    [Header("Scale ô Ready (to hơn ô thường)")]
+    [Tooltip("Nhân scale ô Ready so với gốc. Kéo lúc Play để chỉnh cho khớp demo")]
+    [Range(1f, 2f)]
+    public float readyScale = 1.3f;
 
-    [Tooltip("Màu bình thường (trắng = giữ nguyên ảnh gốc)")]
+    [Header("Màu ô ngày")]
     public Color normalColor = Color.white;
+    public Color claimedDimColor = new Color(0.3f, 0.25f, 0.2f, 1f);
 
     [Header("Nút Claim")]
     public Button claimButton;
 
     [Header("Màu nút Claim")]
-    [Tooltip("Màu nút khi CÓ THỂ nhận")]
     public Color claimActiveColor = new Color(0.2f, 0.8f, 0.2f, 1f);
-
-    [Tooltip("Màu nút khi ĐÃ NHẬN (xám/nâu đen)")]
     public Color claimInactiveColor = new Color(0.3f, 0.25f, 0.2f, 1f);
 
-    void Start()
+    [Header("Hiệu ứng")]
+    [Tooltip("Thời gian rải ô ra từ trái qua phải (giây)")]
+    public float staggerDelay = 0.08f;
+
+    // Internal
+    private Dictionary<int, Vector3> _originalScales = new Dictionary<int, Vector3>();
+    private Dictionary<string, Vector3> _originalChildScales = new Dictionary<string, Vector3>();
+    private Coroutine _readyPulse;
+    private Transform _readyPulseTarget;
+    private Coroutine _staggerCoroutine;
+    private bool _initialized;
+
+    // ==================== INIT ====================
+
+    private void EnsureInitialized()
     {
-        if (SaveSystem.Instance != null)
-            SaveSystem.Instance.OnDataChanged += RefreshUI;
+        if (_initialized) return;
+        _initialized = true;
+
+        for (int i = 0; i < daySlotUIs.Count; i++)
+        {
+            var slot = daySlotUIs[i];
+            if (slot == null) continue;
+
+            if (slot.slotBackground != null)
+            {
+                Vector3 s = slot.slotBackground.transform.localScale;
+                if (s != Vector3.zero)
+                    _originalScales[i] = s;
+            }
+
+            // Lưu scale gốc của các phần tử con
+            SaveChildScale(i, "day", slot.dayLabel);
+            SaveChildScale(i, "reward", slot.rewardText);
+            SaveChildScale(i, "claimed", slot.claimedText);
+            SaveChildScale(i, "icon", slot.rewardImage);
+        }
 
         if (claimButton != null)
         {
@@ -82,28 +115,53 @@ public class DailyRewardUI : MonoBehaviour
             claimButton.onClick.AddListener(OnClaimButtonClicked);
         }
 
-        RefreshUI();
+        if (SaveSystem.Instance != null)
+            SaveSystem.Instance.OnDataChanged += RefreshUI;
+    }
+
+    void OnEnable()
+    {
+        EnsureInitialized();
     }
 
     void OnDestroy()
     {
+        StopAllPulseAndStagger();
         if (SaveSystem.Instance != null)
             SaveSystem.Instance.OnDataChanged -= RefreshUI;
     }
 
+    // ==================== MỞ / ĐÓNG ====================
+
     public void OpenDaily()
     {
         if (dailyPanel != null) dailyPanel.SetActive(true);
+        gameObject.SetActive(true);
+
+        EnsureInitialized();
         RefreshUI();
+
+        // Chờ 1 frame để đảm bảo object hoàn toàn active rồi mới chạy animation
+        StartCoroutine(DelayedStagger());
     }
 
     public void CloseDaily()
     {
+        StopAllPulseAndStagger();
         if (dailyPanel != null) dailyPanel.SetActive(false);
     }
 
+    private IEnumerator DelayedStagger()
+    {
+        yield return null;
+        PlayStaggerIn();
+    }
+
+    // ==================== REFRESH UI ====================
+
     public void RefreshUI()
     {
+        EnsureInitialized();
         if (SaveSystem.Instance == null) return;
 
         var data = SaveSystem.Instance.Data;
@@ -119,9 +177,9 @@ public class DailyRewardUI : MonoBehaviour
         {
             DaySlotUI slot = daySlotUIs[i];
             DaySlotConfig config = dayConfigs[i];
-
             if (slot == null) continue;
 
+            // Text
             if (slot.dayLabel != null)
                 slot.dayLabel.text = $"DAY {i + 1}";
 
@@ -139,43 +197,72 @@ public class DailyRewardUI : MonoBehaviour
             bool isClaimed = data.DailyRewardClaimed[i];
             bool isReady = canClaim && (i == nextDay);
 
+            // Nền ô
             if (slot.slotBackground != null)
             {
+                Transform slotTf = slot.slotBackground.transform;
+
                 if (isClaimed)
                 {
+                    if (slotLockedBG != null) slot.slotBackground.texture = slotLockedBG;
                     slot.slotBackground.color = claimedDimColor;
+                    if (_originalScales.ContainsKey(i)) slotTf.localScale = _originalScales[i];
                 }
                 else if (isReady)
                 {
                     if (slotReadyBG != null) slot.slotBackground.texture = slotReadyBG;
                     slot.slotBackground.color = normalColor;
+                    if (_originalScales.ContainsKey(i))
+                        slotTf.localScale = _originalScales[i] * readyScale;
                 }
                 else
                 {
                     if (slotLockedBG != null) slot.slotBackground.texture = slotLockedBG;
                     slot.slotBackground.color = normalColor;
+                    if (_originalScales.ContainsKey(i)) slotTf.localScale = _originalScales[i];
                 }
             }
 
+            // Counter-scale CHỈ ô Ready để chữ + icon giữ nguyên kích thước
+            if (isReady)
+            {
+                float inv = 1f / readyScale;
+                ApplyChildScale(i, "day", slot.dayLabel, inv);
+                ApplyChildScale(i, "reward", slot.rewardText, inv);
+                ApplyChildScale(i, "claimed", slot.claimedText, inv);
+                ApplyChildScale(i, "icon", slot.rewardImage, inv);
+            }
+            else
+            {
+                // Trả về scale gốc
+                RestoreChildScale(i, "day", slot.dayLabel);
+                RestoreChildScale(i, "reward", slot.rewardText);
+                RestoreChildScale(i, "claimed", slot.claimedText);
+                RestoreChildScale(i, "icon", slot.rewardImage);
+            }
+
+            // Icon
             if (slot.rewardImage != null)
                 slot.rewardImage.color = isClaimed ? claimedDimColor : normalColor;
 
+            // Text Claimed/Reward
             if (slot.claimedText != null)
                 slot.claimedText.gameObject.SetActive(isClaimed);
-
             if (slot.rewardText != null)
                 slot.rewardText.gameObject.SetActive(!isClaimed);
         }
 
+        // Nút Claim
         if (claimButton != null)
         {
             claimButton.interactable = canClaim;
-
             Image btnImage = claimButton.GetComponent<Image>();
             if (btnImage != null)
                 btnImage.color = canClaim ? claimActiveColor : claimInactiveColor;
         }
     }
+
+    // ==================== CLAIM ====================
 
     private void OnClaimButtonClicked()
     {
@@ -193,11 +280,168 @@ public class DailyRewardUI : MonoBehaviour
                 SaveSystem.DailyGoldRewards[nextDay] = dayConfigs[nextDay].goldAmount;
         }
 
+        StopAllPulseAndStagger();
         int goldReceived = SaveSystem.Instance.ClaimDailyReward();
 
         if (goldReceived > 0)
             Debug.Log($"[DailyRewardUI] Đã nhận {goldReceived} vàng!");
 
         RefreshUI();
+        StartPulseForReadySlot();
+    }
+
+    // ==================== HIỆU ỨNG ====================
+
+    private int GetReadySlotIndex()
+    {
+        if (SaveSystem.Instance == null) return -1;
+        var data = SaveSystem.Instance.Data;
+        if (!SaveSystem.Instance.CanClaimDailyReward()) return -1;
+
+        int daysSince = SaveSystem.Instance.GetDaysSinceLastClaim();
+        int nextDay = data.DailyRewardDay + 1;
+        if (daysSince < 0 || daysSince > 1) nextDay = 0;
+        if (nextDay >= 7) nextDay = 0;
+        return nextDay;
+    }
+
+    private void StartPulseForReadySlot()
+    {
+        StopPulse();
+        int readyIdx = GetReadySlotIndex();
+        if (readyIdx < 0 || readyIdx >= daySlotUIs.Count) return;
+
+        var slot = daySlotUIs[readyIdx];
+        if (slot == null || slot.slotBackground == null) return;
+
+        _readyPulseTarget = slot.slotBackground.transform;
+        _readyPulse = StartCoroutine(PulseReady(_readyPulseTarget));
+    }
+
+    private IEnumerator PulseReady(Transform target)
+    {
+        Vector3 baseScale = target.localScale;
+        while (target != null)
+        {
+            float mul = Mathf.Lerp(0.96f, 1.04f, (Mathf.Sin(Time.unscaledTime * 3f) + 1f) * 0.5f);
+            target.localScale = baseScale * mul;
+            yield return null;
+        }
+    }
+
+    // Rải ô từ trái qua phải
+    private void PlayStaggerIn()
+    {
+        if (!gameObject.activeInHierarchy) return;
+        if (_staggerCoroutine != null) StopCoroutine(_staggerCoroutine);
+        StopPulse();
+        _staggerCoroutine = StartCoroutine(StaggerSlots());
+    }
+
+    private IEnumerator StaggerSlots()
+    {
+        int readyIdx = GetReadySlotIndex();
+
+        List<Transform> slots = new List<Transform>();
+        List<Vector3> targets = new List<Vector3>();
+
+        for (int i = 0; i < daySlotUIs.Count; i++)
+        {
+            if (daySlotUIs[i] == null || daySlotUIs[i].slotBackground == null) continue;
+            Transform t = daySlotUIs[i].slotBackground.transform;
+            Vector3 baseScale = _originalScales.ContainsKey(i) ? _originalScales[i] : t.localScale;
+
+            // Ô Ready → to hơn
+            Vector3 targetScale = (i == readyIdx) ? baseScale * readyScale : baseScale;
+
+            slots.Add(t);
+            targets.Add(targetScale);
+            t.localScale = Vector3.zero;
+        }
+
+        for (int i = 0; i < slots.Count; i++)
+        {
+            StartCoroutine(PopScale(slots[i], targets[i], 0.25f));
+            yield return new WaitForSecondsRealtime(staggerDelay);
+        }
+
+        yield return new WaitForSecondsRealtime(0.3f);
+        StartPulseForReadySlot();
+        _staggerCoroutine = null;
+    }
+
+    private IEnumerator PopScale(Transform target, Vector3 targetScale, float duration)
+    {
+        Vector3 overshoot = targetScale * 1.1f;
+        float half = duration * 0.5f;
+
+        float elapsed = 0f;
+        while (elapsed < half && target != null)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / half);
+            t = 1f - (1f - t) * (1f - t);
+            target.localScale = Vector3.Lerp(Vector3.zero, overshoot, t);
+            yield return null;
+        }
+
+        elapsed = 0f;
+        float remaining = duration - half;
+        while (elapsed < remaining && target != null)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / remaining);
+            t = 1f - (1f - t) * (1f - t);
+            target.localScale = Vector3.Lerp(overshoot, targetScale, t);
+            yield return null;
+        }
+
+        if (target != null) target.localScale = targetScale;
+    }
+
+    // ==================== CLEANUP ====================
+
+    private void StopPulse()
+    {
+        if (_readyPulse != null) { StopCoroutine(_readyPulse); _readyPulse = null; }
+        _readyPulseTarget = null;
+    }
+
+    private void StopAllPulseAndStagger()
+    {
+        StopPulse();
+        if (_staggerCoroutine != null) { StopCoroutine(_staggerCoroutine); _staggerCoroutine = null; }
+    }
+
+    // ==================== CHILD SCALE HELPERS ====================
+
+    private void SaveChildScale(int slotIdx, string key, Component child)
+    {
+        if (child == null) return;
+        string id = $"{slotIdx}_{key}";
+        _originalChildScales[id] = child.transform.localScale;
+    }
+
+    private void ApplyChildScale(int slotIdx, string key, Component child, float multiplier)
+    {
+        if (child == null) return;
+        string id = $"{slotIdx}_{key}";
+        if (_originalChildScales.ContainsKey(id))
+        {
+            Vector3 orig = _originalChildScales[id];
+            child.transform.localScale = new Vector3(
+                orig.x * multiplier,
+                orig.y * multiplier,
+                orig.z
+            );
+        }
+    }
+
+    private void RestoreChildScale(int slotIdx, string key, Component child)
+    {
+        if (child == null) return;
+        string id = $"{slotIdx}_{key}";
+        if (_originalChildScales.ContainsKey(id))
+            child.transform.localScale = _originalChildScales[id];
     }
 }

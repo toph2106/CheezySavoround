@@ -1,9 +1,13 @@
 using UnityEngine;
+using System;
 using System.Collections;
 
 public class GameJuice : MonoBehaviour
 {
     public static GameJuice Instance { get; private set; }
+
+    // === Achievement Event ===
+    public event Action<int> OnComboAchieved;
 
     [Header("Squash & Stretch")]
     [Tooltip("Thời gian hiệu ứng bóp giãn (giây)")]
@@ -179,6 +183,11 @@ public class GameJuice : MonoBehaviour
         _audioSource.PlayOneShot(explosionClip);
 
         _comboCount++;
+
+        // Achievement: combo tracking
+        OnComboAchieved?.Invoke(_comboCount);
+        if (SaveSystem.Instance != null && _comboCount > SaveSystem.Instance.Data.HighestCombo)
+            SaveSystem.Instance.Data.HighestCombo = _comboCount;
     }
 
     private void PlayPlaceSound()
