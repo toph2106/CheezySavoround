@@ -32,6 +32,16 @@ public class UserData
     public bool SoundEnabled = true;
 
     public bool MusicEnabled = true;
+
+    // ==================== ACHIEVEMENT ====================
+    public List<AchievementData> Achievements = new List<AchievementData>();
+
+    // Thống kê tích lũy (all-time) — dùng cho achievement tracking
+    public int TotalGoldEarned = 0;
+    public int TotalPlatesExploded = 0;
+    public int TotalPlatesPlaced = 0;
+    public int TotalGamesPlayed = 0;
+    public int HighestCombo = 0;
 }
 [Serializable]
 public class QuestData

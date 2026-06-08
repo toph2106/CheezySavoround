@@ -1,8 +1,12 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
 
 public class PlateItem : MonoBehaviour
 {
+    // === Achievement Events (static vì nhiều instance) ===
+    public static event Action OnAnyPlateExploded;
+    public static event Action OnAnyPlatePlaced;
     [Header("Spawner Settings")]
     public GameObject[] pizzaPrefabs;
     public int minSlices = 1;
@@ -26,15 +30,17 @@ public class PlateItem : MonoBehaviour
     {
         _gridManager = FindFirstObjectByType<GridManager>();
 
+        Debug.Log($"[PlateItem] Đĩa '{gameObject.name}' spawn! SkinManager.Instance={SkinManager.Instance != null}, SkinShopManager.Instance={SkinShopManager.Instance != null}");
+
         if (SkinManager.Instance != null)
             SkinManager.Instance.RegisterPlate(this);
 
         if (pizzaPrefabs.Length > 0 && pizzaSlicesOnPlate.Count == 0)
         {
-            int count = Random.Range(minSlices, maxSlices + 1);
+            int count = UnityEngine.Random.Range(minSlices, maxSlices + 1);
             for (int i = 0; i < count; i++)
             {
-                int idx = Random.Range(0, pizzaPrefabs.Length);
+                int idx = UnityEngine.Random.Range(0, pizzaPrefabs.Length);
                 GameObject obj = Instantiate(pizzaPrefabs[idx], transform.position, Quaternion.identity, transform);
                 obj.transform.localPosition = new Vector3(0, 0.7f, 0);
                 obj.transform.localRotation = Quaternion.Euler(0, i * 60f, 0);
@@ -141,6 +147,11 @@ public class PlateItem : MonoBehaviour
             TrayManager.Instance.OnPlatePlaced();
         }
 
+        // Achievement tracking
+        if (SaveSystem.Instance != null)
+            SaveSystem.Instance.Data.TotalPlatesPlaced++;
+        OnAnyPlatePlaced?.Invoke();
+
         if (GameJuice.Instance != null)
         {
             GameJuice.Instance.PlaySquashStretch(transform);
@@ -169,7 +180,9 @@ public class PlateItem : MonoBehaviour
         if (SaveSystem.Instance != null)
         {
             SaveSystem.Instance.AddGold(10);
+            SaveSystem.Instance.Data.TotalPlatesExploded++;
         }
+        OnAnyPlateExploded?.Invoke();
 
         if (GameManager.Instance != null && ObjectPooler.Instance != null)
         {

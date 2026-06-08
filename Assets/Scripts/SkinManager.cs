@@ -118,31 +118,35 @@ public class SkinManager : MonoBehaviour
     private void ApplySkinToPlate(GameObject plateObj)
     {
         if (plateObj == null || SaveSystem.Instance == null) return;
-        if (SkinShopManager.Instance == null) return;
+
+        if (SkinShopManager.Instance == null)
+        {
+            Debug.LogWarning("[SkinManager] SkinShopManager.Instance = null!");
+            return;
+        }
 
         string equippedID = SaveSystem.Instance.Data.EquippedSkin;
+        Debug.Log($"[SkinManager] Đang apply skin '{equippedID}' lên đĩa '{plateObj.name}'");
 
-        // Tìm SkinPackage khớp với ID đang trang bị
         SkinPackage skinData = SkinShopManager.Instance.packages.Find(s => s.itemID == equippedID);
 
         if (skinData == null)
         {
-            // Không tìm thấy → có thể là skin default, không cần đổi
-            Debug.Log($"[SkinManager] Skin '{equippedID}' không có trong danh sách shop — giữ nguyên model gốc.");
+            Debug.Log($"[SkinManager] Skin '{equippedID}' không có trong danh sách shop — giữ nguyên.");
             return;
         }
 
         MeshFilter mf = plateObj.GetComponent<MeshFilter>();
         MeshRenderer mr = plateObj.GetComponent<MeshRenderer>();
 
-        // Đổi Mesh (nếu được cấu hình)
+        Debug.Log($"[SkinManager] MeshFilter={mf != null}, MeshRenderer={mr != null}, Mesh={skinData.plateMesh != null}, Material={skinData.plateMaterial != null}");
+
         if (mf != null && skinData.plateMesh != null)
         {
             mf.sharedMesh = skinData.plateMesh;
             Debug.Log($"[SkinManager] Đổi Mesh → {skinData.plateMesh.name}");
         }
 
-        // Đổi Material (nếu được cấu hình)
         if (mr != null && skinData.plateMaterial != null)
         {
             mr.material = skinData.plateMaterial;

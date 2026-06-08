@@ -28,6 +28,10 @@ public class GameManager : MonoBehaviour
 
     public event Action<GameState, GameState> OnStateChanged;
 
+    // === Achievement Events ===
+    public event Action OnGameStarted;
+    public event Action OnGameOver;
+
     // === FSM ===
     private IGameState _currentState;
     private Dictionary<GameState, IGameState> _stateCache;
@@ -61,6 +65,11 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         ChangeState(GameState.Playing);
+    }
+
+    public void ReturnToMenu()
+    {
+        ChangeState(GameState.Menu);
     }
 
     void OnApplicationQuit()
@@ -127,6 +136,17 @@ public class GameManager : MonoBehaviour
         }
 
         OnStateChanged?.Invoke(oldState, newState);
+
+        // Achievement events
+        if (newState == GameState.Playing && oldState == GameState.Menu)
+            OnGameStarted?.Invoke();
+
+        if (newState == GameState.GameOver)
+        {
+            if (SaveSystem.Instance != null)
+                SaveSystem.Instance.Data.TotalGamesPlayed++;
+            OnGameOver?.Invoke();
+        }
 
         Debug.Log($"[GameManager] {oldState} -> {newState}");
     }
