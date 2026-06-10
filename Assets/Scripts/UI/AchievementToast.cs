@@ -3,13 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-/// <summary>
-/// Toast thông báo khi unlock achievement.
-/// Tự động trượt vào từ trên, hiện 3 giây rồi trượt ra.
-/// 
-/// Gắn lên 1 UI panel ở góc trên màn hình.
-/// AchievementManager.OnAchievementUnlocked → hiện toast.
-/// </summary>
 public class AchievementToast : MonoBehaviour
 {
     public static AchievementToast Instance { get; private set; }
@@ -70,7 +63,6 @@ public class AchievementToast : MonoBehaviour
     {
         if (toastPanel == null || _panelRect == null) return;
 
-        // Cập nhật nội dung
         if (titleText != null)
             titleText.text = $"🏆 {config.displayName}";
 
@@ -80,7 +72,6 @@ public class AchievementToast : MonoBehaviour
         if (iconImage != null && config.icon != null)
             iconImage.texture = config.icon.texture;
 
-        // Chạy animation
         if (_currentToast != null)
             StopCoroutine(_currentToast);
 
@@ -92,7 +83,6 @@ public class AchievementToast : MonoBehaviour
         toastPanel.SetActive(true);
         _panelRect.anchoredPosition = _hiddenPos;
 
-        // Slide in
         float elapsed = 0f;
         while (elapsed < slideDuration)
         {
@@ -104,10 +94,8 @@ public class AchievementToast : MonoBehaviour
         }
         _panelRect.anchoredPosition = _shownPos;
 
-        // Hiện
         yield return new WaitForSecondsRealtime(displayDuration);
 
-        // Slide out
         elapsed = 0f;
         while (elapsed < slideDuration)
         {

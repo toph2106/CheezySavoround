@@ -1,19 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Panel Achievement chính — popup giống Daily Reward.
-/// Chứa ScrollView với danh sách achievement slot.
-/// 
-/// Hierarchy nên có:
-///   AchievementPanel (this script)
-///     ┣ Background / Header
-///     ┣ CloseButton
-///     ┗ ScrollView
-///         ┗ Viewport
-///             ┗ Content (Vertical Layout Group)
-///                 ┣ [AchievementSlot prefab sẽ được spawn ở đây]
-/// </summary>
 public class AchievementUI : MonoBehaviour
 {
     [Header("Panel")]
@@ -41,7 +28,6 @@ public class AchievementUI : MonoBehaviour
             closeButton.onClick.AddListener(CloseAchievement);
         }
 
-        // Lắng nghe unlock để tự refresh
         if (AchievementManager.Instance != null)
             AchievementManager.Instance.OnAchievementUnlocked += OnAchievementUnlocked;
     }
@@ -52,7 +38,6 @@ public class AchievementUI : MonoBehaviour
             AchievementManager.Instance.OnAchievementUnlocked -= OnAchievementUnlocked;
     }
 
-    // ==================== MỞ / ĐÓNG ====================
 
     public void OpenAchievement()
     {
@@ -69,11 +54,7 @@ public class AchievementUI : MonoBehaviour
             achievementPanel.SetActive(false);
     }
 
-    // ==================== BUILD & REFRESH ====================
 
-    /// <summary>
-    /// Tạo slot UI cho mỗi achievement config (chỉ tạo 1 lần).
-    /// </summary>
     private void BuildSlots()
     {
         if (_built) return;
@@ -99,10 +80,6 @@ public class AchievementUI : MonoBehaviour
 
         _built = true;
     }
-
-    /// <summary>
-    /// Refresh tất cả slot (khi mở panel hoặc khi có achievement mới).
-    /// </summary>
     public void RefreshAll()
     {
         foreach (var slot in _spawnedSlots)
@@ -113,7 +90,6 @@ public class AchievementUI : MonoBehaviour
 
     private void OnAchievementUnlocked(AchievementConfig config)
     {
-        // Nếu panel đang mở → refresh ngay
         if (achievementPanel != null && achievementPanel.activeSelf)
             RefreshAll();
     }

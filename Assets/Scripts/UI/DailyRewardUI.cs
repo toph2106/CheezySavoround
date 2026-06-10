@@ -75,7 +75,6 @@ public class DailyRewardUI : MonoBehaviour
     [Tooltip("Thời gian rải ô ra từ trái qua phải (giây)")]
     public float staggerDelay = 0.08f;
 
-    // Internal
     private Dictionary<int, Vector3> _originalScales = new Dictionary<int, Vector3>();
     private Dictionary<string, Vector3> _originalChildScales = new Dictionary<string, Vector3>();
     private Coroutine _readyPulse;
@@ -83,7 +82,6 @@ public class DailyRewardUI : MonoBehaviour
     private Coroutine _staggerCoroutine;
     private bool _initialized;
 
-    // ==================== INIT ====================
 
     private void EnsureInitialized()
     {
@@ -102,7 +100,6 @@ public class DailyRewardUI : MonoBehaviour
                     _originalScales[i] = s;
             }
 
-            // Lưu scale gốc của các phần tử con
             SaveChildScale(i, "day", slot.dayLabel);
             SaveChildScale(i, "reward", slot.rewardText);
             SaveChildScale(i, "claimed", slot.claimedText);
@@ -131,7 +128,6 @@ public class DailyRewardUI : MonoBehaviour
             SaveSystem.Instance.OnDataChanged -= RefreshUI;
     }
 
-    // ==================== MỞ / ĐÓNG ====================
 
     public void OpenDaily()
     {
@@ -141,7 +137,6 @@ public class DailyRewardUI : MonoBehaviour
         EnsureInitialized();
         RefreshUI();
 
-        // Chờ 1 frame để đảm bảo object hoàn toàn active rồi mới chạy animation
         StartCoroutine(DelayedStagger());
     }
 
@@ -157,7 +152,6 @@ public class DailyRewardUI : MonoBehaviour
         PlayStaggerIn();
     }
 
-    // ==================== REFRESH UI ====================
 
     public void RefreshUI()
     {
@@ -179,7 +173,6 @@ public class DailyRewardUI : MonoBehaviour
             DaySlotConfig config = dayConfigs[i];
             if (slot == null) continue;
 
-            // Text
             if (slot.dayLabel != null)
                 slot.dayLabel.text = $"DAY {i + 1}";
 
@@ -197,7 +190,6 @@ public class DailyRewardUI : MonoBehaviour
             bool isClaimed = data.DailyRewardClaimed[i];
             bool isReady = canClaim && (i == nextDay);
 
-            // Nền ô
             if (slot.slotBackground != null)
             {
                 Transform slotTf = slot.slotBackground.transform;
@@ -223,7 +215,6 @@ public class DailyRewardUI : MonoBehaviour
                 }
             }
 
-            // Counter-scale CHỈ ô Ready để chữ + icon giữ nguyên kích thước
             if (isReady)
             {
                 float inv = 1f / readyScale;
@@ -234,25 +225,21 @@ public class DailyRewardUI : MonoBehaviour
             }
             else
             {
-                // Trả về scale gốc
                 RestoreChildScale(i, "day", slot.dayLabel);
                 RestoreChildScale(i, "reward", slot.rewardText);
                 RestoreChildScale(i, "claimed", slot.claimedText);
                 RestoreChildScale(i, "icon", slot.rewardImage);
             }
 
-            // Icon
             if (slot.rewardImage != null)
                 slot.rewardImage.color = isClaimed ? claimedDimColor : normalColor;
 
-            // Text Claimed/Reward
             if (slot.claimedText != null)
                 slot.claimedText.gameObject.SetActive(isClaimed);
             if (slot.rewardText != null)
                 slot.rewardText.gameObject.SetActive(!isClaimed);
         }
 
-        // Nút Claim
         if (claimButton != null)
         {
             claimButton.interactable = canClaim;
@@ -262,7 +249,6 @@ public class DailyRewardUI : MonoBehaviour
         }
     }
 
-    // ==================== CLAIM ====================
 
     private void OnClaimButtonClicked()
     {
@@ -284,13 +270,11 @@ public class DailyRewardUI : MonoBehaviour
         int goldReceived = SaveSystem.Instance.ClaimDailyReward();
 
         if (goldReceived > 0)
-            Debug.Log($"[DailyRewardUI] Đã nhận {goldReceived} vàng!");
 
         RefreshUI();
         StartPulseForReadySlot();
     }
 
-    // ==================== HIỆU ỨNG ====================
 
     private int GetReadySlotIndex()
     {
@@ -329,7 +313,6 @@ public class DailyRewardUI : MonoBehaviour
         }
     }
 
-    // Rải ô từ trái qua phải
     private void PlayStaggerIn()
     {
         if (!gameObject.activeInHierarchy) return;
@@ -351,7 +334,6 @@ public class DailyRewardUI : MonoBehaviour
             Transform t = daySlotUIs[i].slotBackground.transform;
             Vector3 baseScale = _originalScales.ContainsKey(i) ? _originalScales[i] : t.localScale;
 
-            // Ô Ready → to hơn
             Vector3 targetScale = (i == readyIdx) ? baseScale * readyScale : baseScale;
 
             slots.Add(t);
@@ -399,7 +381,6 @@ public class DailyRewardUI : MonoBehaviour
         if (target != null) target.localScale = targetScale;
     }
 
-    // ==================== CLEANUP ====================
 
     private void StopPulse()
     {
@@ -413,7 +394,6 @@ public class DailyRewardUI : MonoBehaviour
         if (_staggerCoroutine != null) { StopCoroutine(_staggerCoroutine); _staggerCoroutine = null; }
     }
 
-    // ==================== CHILD SCALE HELPERS ====================
 
     private void SaveChildScale(int slotIdx, string key, Component child)
     {

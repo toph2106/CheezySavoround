@@ -2,10 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-/// <summary>
-/// UI hiển thị 1 ô achievement trong scroll list.
-/// Gắn lên Prefab "AchievementSlot".
-/// </summary>
 public class AchievementSlotUI : MonoBehaviour
 {
     [Header("UI Elements")]
@@ -55,18 +51,15 @@ public class AchievementSlotUI : MonoBehaviour
 
         var (progress, target, unlocked, claimed) = AchievementManager.Instance.GetProgress(_achievementID);
 
-        // Progress bar
         if (progressBar != null)
         {
             progressBar.maxValue = target;
             progressBar.value = progress;
         }
 
-        // Progress text
         if (progressText != null)
             progressText.text = $"{progress} / {target}";
 
-        // Trạng thái nút Claim
         if (claimButton != null)
         {
             if (claimed)
@@ -86,11 +79,9 @@ public class AchievementSlotUI : MonoBehaviour
             }
         }
 
-        // Overlay hoàn thành
         if (completedOverlay != null)
             completedOverlay.SetActive(claimed);
 
-        // Đổi màu theo trạng thái
         if (nameText != null)
         {
             if (claimed) nameText.color = claimedColor;
@@ -106,7 +97,6 @@ public class AchievementSlotUI : MonoBehaviour
         bool success = AchievementManager.Instance.ClaimReward(_achievementID);
         if (success)
         {
-            Debug.Log($"[AchievementSlotUI] Claimed: {_config.displayName}");
             Refresh();
         }
     }

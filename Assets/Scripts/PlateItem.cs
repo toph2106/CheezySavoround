@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 public class PlateItem : MonoBehaviour
 {
-    // === Achievement Events (static vì nhiều instance) ===
     public static event Action OnAnyPlateExploded;
     public static event Action OnAnyPlatePlaced;
     [Header("Spawner Settings")]
@@ -24,13 +23,11 @@ public class PlateItem : MonoBehaviour
     private Slot _hoveredSlot;
     private bool _isDragging = false;
     private bool _isPlaced = false;
-    private GridManager _gridManager;
+    private Camera _mainCamera;
 
     void Start()
     {
-        _gridManager = FindFirstObjectByType<GridManager>();
-
-        Debug.Log($"[PlateItem] Đĩa '{gameObject.name}' spawn! SkinManager.Instance={SkinManager.Instance != null}, SkinShopManager.Instance={SkinShopManager.Instance != null}");
+        _mainCamera = Camera.main;
 
         if (SkinManager.Instance != null)
             SkinManager.Instance.RegisterPlate(this);
@@ -63,9 +60,14 @@ public class PlateItem : MonoBehaviour
         if (_isPlaced || isExploding) return;
         if (GameManager.Instance == null || !GameManager.Instance.IsInteractable()) return;
 
+        // Chặn kéo đĩa khi đang chọn booster
+        if (BoosterManager.Instance != null && BoosterManager.Instance.IsTargeting) return;
+
+        if (_mainCamera == null) return;
+
         if (Input.GetMouseButtonDown(0))
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit, 100f) && hit.collider.gameObject == gameObject)
             {
                 _isDragging = true;
@@ -76,7 +78,7 @@ public class PlateItem : MonoBehaviour
         if (_isDragging && Input.GetMouseButton(0))
         {
             Plane plane = new Plane(Vector3.up, new Vector3(0, dragHeight, 0));
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
             if (plane.Raycast(ray, out float dist))
                 transform.position = ray.GetPoint(dist);
 
@@ -147,7 +149,6 @@ public class PlateItem : MonoBehaviour
             TrayManager.Instance.OnPlatePlaced();
         }
 
-        // Achievement tracking
         if (SaveSystem.Instance != null)
             SaveSystem.Instance.Data.TotalPlatesPlaced++;
         OnAnyPlatePlaced?.Invoke();
@@ -157,8 +158,8 @@ public class PlateItem : MonoBehaviour
             GameJuice.Instance.PlaySquashStretch(transform);
         }
 
-        if (_gridManager != null)
-            _gridManager.ProcessMergesAt(mySlot);
+        if (GridManager.Instance != null)
+            GridManager.Instance.ProcessMergesAt(mySlot);
     }
 
     public void ExplodePlate()
@@ -182,6 +183,10 @@ public class PlateItem : MonoBehaviour
             SaveSystem.Instance.AddGold(10);
             SaveSystem.Instance.Data.TotalPlatesExploded++;
         }
+
+        if (GameManager.Instance != null)
+            GameManager.Instance.AddScore(100);
+
         OnAnyPlateExploded?.Invoke();
 
         if (GameManager.Instance != null && ObjectPooler.Instance != null)

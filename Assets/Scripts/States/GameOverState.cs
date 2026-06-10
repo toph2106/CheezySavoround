@@ -6,7 +6,6 @@ public class GameOverState : IGameState
 
     public void Enter(GameManager manager)
     {
-        Debug.Log("[FSM] Vào trạng thái: GameOver");
 
         if (manager.gameOverPanel != null)
         {
@@ -20,7 +19,6 @@ public class GameOverState : IGameState
 
     public void Exit(GameManager manager)
     {
-        Debug.Log("[FSM] Rời trạng thái: GameOver");
 
         if (manager.gameOverPanel != null)
         {

@@ -2,10 +2,6 @@
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// Editor script tạo 10 Achievement Config assets mặc định.
-/// Chạy 1 lần: Menu bar → Cheezy → Create Default Achievements
-/// </summary>
 public class AchievementConfigCreator
 {
     [MenuItem("Cheezy/Create Default Achievements")]
@@ -51,7 +47,6 @@ public class AchievementConfigCreator
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log("[AchievementConfigCreator] ✅ Đã tạo 10 Achievement configs tại: " + folder);
         EditorUtility.DisplayDialog("Thành công!", $"Đã tạo 10 Achievement configs tại:\n{folder}", "OK");
     }
 
@@ -60,10 +55,8 @@ public class AchievementConfigCreator
     {
         string path = $"{folder}/{id}.asset";
 
-        // Nếu đã tồn tại → skip
         if (AssetDatabase.LoadAssetAtPath<AchievementConfig>(path) != null)
         {
-            Debug.Log($"[AchievementConfigCreator] Đã tồn tại: {path} → Bỏ qua");
             return;
         }
 
@@ -76,7 +69,6 @@ public class AchievementConfigCreator
         config.goldReward = reward;
 
         AssetDatabase.CreateAsset(config, path);
-        Debug.Log($"[AchievementConfigCreator] Tạo: {path}");
     }
 }
 #endif

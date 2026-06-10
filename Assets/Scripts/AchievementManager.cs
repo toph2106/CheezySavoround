@@ -2,27 +2,16 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Singleton quản lý Achievement — hoàn toàn event-driven.
-/// Chỉ lắng nghe event từ Core game, KHÔNG can thiệp logic game.
-/// 
-/// Setup: Gắn lên 1 GameObject trong scene, kéo AchievementConfig assets vào mảng configs.
-/// </summary>
 public class AchievementManager : MonoBehaviour
 {
     public static AchievementManager Instance { get; private set; }
 
-    [Header("Danh sách Achievement (kéo ScriptableObject vào đây)")]
-    [Tooltip("Thêm / bớt / sắp xếp lại tùy ý — code tự xử lý")]
+    [Header("Danh sách Achievement")]
+    [Tooltip("Thêm / bớt / sắp xếp")]
     public AchievementConfig[] configs;
 
-    /// <summary>
-    /// Phát ra khi 1 achievement được unlock.
-    /// UI lắng nghe event này để hiện toast.
-    /// </summary>
     public event Action<AchievementConfig> OnAchievementUnlocked;
 
-    // Cache nhanh: ID → Config
     private Dictionary<string, AchievementConfig> _configMap = new Dictionary<string, AchievementConfig>();
 
     void Awake()
@@ -34,7 +23,6 @@ public class AchievementManager : MonoBehaviour
         }
         Instance = this;
 
-        // Build config lookup
         _configMap.Clear();
         if (configs != null)
         {
@@ -60,24 +48,20 @@ public class AchievementManager : MonoBehaviour
 
     private void SubscribeEvents()
     {
-        // PlateItem (static events)
         PlateItem.OnAnyPlateExploded += HandlePlateExploded;
         PlateItem.OnAnyPlatePlaced += HandlePlatePlaced;
 
-        // SaveSystem
         if (SaveSystem.Instance != null)
         {
             SaveSystem.Instance.OnGoldEarned += HandleGoldEarned;
             SaveSystem.Instance.OnSkinUnlocked += HandleSkinUnlocked;
         }
 
-        // GameManager
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnGameOver += HandleGameOver;
         }
 
-        // GameJuice
         if (GameJuice.Instance != null)
         {
             GameJuice.Instance.OnComboAchieved += HandleCombo;
@@ -132,7 +116,7 @@ public class AchievementManager : MonoBehaviour
     private void HandleSkinUnlocked(string skinID)
     {
         if (SaveSystem.Instance == null) return;
-        int total = SaveSystem.Instance.Data.OwnedSkins.Count - 1; // -1 vì "default" không tính
+        int total = SaveSystem.Instance.Data.OwnedSkins.Count - 1;
         CheckAndUnlock(AchievementType.SkinsUnlocked, total);
     }
 
@@ -150,10 +134,7 @@ public class AchievementManager : MonoBehaviour
 
     // ==================== CORE LOGIC ====================
 
-    /// <summary>
     /// Kiểm tra tất cả achievement thuộc type này.
-    /// Nếu currentValue >= targetValue → unlock.
-    /// </summary>
     private void CheckAndUnlock(AchievementType type, int currentValue)
     {
         if (SaveSystem.Instance == null || configs == null) return;
@@ -189,10 +170,6 @@ public class AchievementManager : MonoBehaviour
 
     // ==================== PUBLIC API ====================
 
-    /// <summary>
-    /// Lấy progress hiện tại của 1 achievement.
-    /// Trả về (progress, target, isUnlocked, isClaimed).
-    /// </summary>
     public (int progress, int target, bool unlocked, bool claimed) GetProgress(string achievementID)
     {
         if (!_configMap.ContainsKey(achievementID))
@@ -208,9 +185,6 @@ public class AchievementManager : MonoBehaviour
         return (progress, cfg.targetValue, unlocked, claimed);
     }
 
-    /// <summary>
-    /// Claim reward cho achievement. Trả về true nếu thành công.
-    /// </summary>
     public bool ClaimReward(string achievementID)
     {
         if (!_configMap.ContainsKey(achievementID)) return false;
@@ -224,17 +198,12 @@ public class AchievementManager : MonoBehaviour
         return success;
     }
 
-    /// <summary>
     /// Lấy config theo ID.
-    /// </summary>
     public AchievementConfig GetConfig(string achievementID)
     {
         return _configMap.ContainsKey(achievementID) ? _configMap[achievementID] : null;
     }
 
-    /// <summary>
-    /// Lấy tất cả configs (dùng cho UI render danh sách).
-    /// </summary>
     public AchievementConfig[] GetAllConfigs()
     {
         return configs;
