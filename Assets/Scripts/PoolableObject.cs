@@ -24,13 +24,11 @@ public class PoolableObject : MonoBehaviour
     {
         StartCoroutine(AutoReturnRoutine());
 
-        // Nếu là Text điểm số, tự động bay lên
         if (_textComponent != null)
         {
             StartCoroutine(FloatingTextRoutine());
         }
 
-        // Nếu là Particle, tự động play
         if (_particleSystem != null)
         {
             _particleSystem.Play();
@@ -59,7 +57,6 @@ public class PoolableObject : MonoBehaviour
         while (elapsed < lifeTime)
         {
             elapsed += Time.deltaTime;
-            // Di chuyển dọc theo trục Z (bay lên trên theo màn hình top-down)
             transform.position = startPos + Vector3.forward * (elapsed * floatSpeed);
             yield return null;
         }

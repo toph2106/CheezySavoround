@@ -6,7 +6,6 @@ public class CheckingComboState : IGameState
 
     public void Enter(GameManager manager)
     {
-        Debug.Log("[FSM] Vào trạng thái: CheckingCombo");
     }
 
     public void Execute(GameManager manager)
@@ -15,6 +14,5 @@ public class CheckingComboState : IGameState
 
     public void Exit(GameManager manager)
     {
-        Debug.Log("[FSM] Rời trạng thái: CheckingCombo");
     }
 }

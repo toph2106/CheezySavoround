@@ -1,9 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// ScriptableObject chứa dữ liệu cho một Skin trong Shop.
-/// Cho phép tạo thêm Skin mới dễ dàng bằng cách chuột phải -> Create -> Cheezy -> Shop Item
-/// </summary>
 [CreateAssetMenu(fileName = "NewShopItem", menuName = "Cheezy/Shop Item")]
 public class ShopItemData : ScriptableObject
 {

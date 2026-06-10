@@ -31,11 +31,18 @@ public class GridManager : MonoBehaviour
     public float moveWait = 0.4f;
     public float bloomWait = 0.15f;
 
+    [Header("Tile Animation")]
+    [Tooltip("Thời gian delay giữa mỗi tile khi spawn")]
+    public float tileSpawnDelay = 0.05f;
+    [Tooltip("Thời gian animation scale-up của mỗi tile")]
+    public float tileScaleDuration = 0.25f;
+
     public Slot[,] gridArray;
     private int _cols;
     private int _rows;
     private bool _isProcessing = false;
     private bool _pendingMerge = false;
+    private bool _isSpawningTiles = false;
 
     public static GridManager Instance { get; private set; }
 
@@ -49,23 +56,62 @@ public class GridManager : MonoBehaviour
         Instance = this;
     }
 
-    void Start()
-    {
-        LoadLevel(currentLevel);
-    }
+    void Start() { }
 
     public void LoadLevel(int levelId)
     {
+        currentLevel = levelId;
         TextAsset json = Resources.Load<TextAsset>($"Levels/Level_{levelId}");
         if (json != null)
         {
             LevelData data = JsonUtility.FromJson<LevelData>(json.text);
-            GenerateGrid(data);
+            StartCoroutine(GenerateGridAnimated(data));
         }
     }
 
-    void GenerateGrid(LevelData data)
+    /// <summary>
+    /// Xóa toàn bộ grid hiện tại (tất cả tile, plate, pizza) để chuẩn bị load level mới.
+    /// </summary>
+    public void ClearGrid()
     {
+        if (TrayManager.Instance != null)
+        {
+            foreach (Transform sp in TrayManager.Instance.spawnPoints)
+            {
+                if (sp == null) continue;
+                for (int i = sp.childCount - 1; i >= 0; i--)
+                    Destroy(sp.GetChild(i).gameObject);
+            }
+        }
+
+        if (gridParent != null)
+        {
+            for (int i = gridParent.childCount - 1; i >= 0; i--)
+                Destroy(gridParent.GetChild(i).gameObject);
+        }
+
+        PlateItem[] strayPlates = FindObjectsByType<PlateItem>(FindObjectsSortMode.None);
+        foreach (var plate in strayPlates)
+        {
+            if (plate != null) Destroy(plate.gameObject);
+        }
+
+        gridArray = null;
+        _cols = 0;
+        _rows = 0;
+        _isProcessing = false;
+        _pendingMerge = false;
+    }
+
+    public bool IsReady()
+    {
+        return !_isSpawningTiles && gridArray != null;
+    }
+
+    private IEnumerator GenerateGridAnimated(LevelData data)
+    {
+        _isSpawningTiles = true;
+
         _cols = data.columns;
         _rows = data.rows;
         gridArray = new Slot[_cols, _rows];
@@ -78,9 +124,9 @@ public class GridManager : MonoBehaviour
         float offsetX = (_cols - 1f) * spacing / 2f;
         float offsetZ = (_rows - 1f) * spacing / 2f;
 
-        for (int x = 0; x < _cols; x++)
+        for (int z = _rows - 1; z >= 0; z--)
         {
-            for (int z = 0; z < _rows; z++)
+            for (int x = 0; x < _cols; x++)
             {
                 if (disabled.Contains(new Vector2Int(x, z))) continue;
 
@@ -92,8 +138,39 @@ public class GridManager : MonoBehaviour
                 Slot slot = tile.GetComponent<Slot>();
                 slot.Initialize(x, z);
                 gridArray[x, z] = slot;
+
+                tile.transform.localScale = Vector3.zero;
+                StartCoroutine(ScaleTileIn(tile.transform, tileScaleDuration));
+
+                yield return new WaitForSeconds(tileSpawnDelay);
             }
         }
+
+        _isSpawningTiles = false;
+    }
+
+    private IEnumerator ScaleTileIn(Transform tile, float duration)
+    {
+        float elapsed = 0f;
+        Vector3 targetScale = Vector3.one;
+
+        while (elapsed < duration)
+        {
+            if (tile == null) yield break;
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+
+            float overshoot = 1.70158f;
+            float val = 1f;
+            t -= 1f;
+            val = t * t * ((overshoot + 1f) * t + overshoot) + 1f;
+
+            tile.localScale = targetScale * val;
+            yield return null;
+        }
+
+        if (tile != null)
+            tile.localScale = targetScale;
     }
 
     public List<Slot> GetNeighbors(int x, int z)

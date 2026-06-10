@@ -22,7 +22,6 @@ public class TrayManager : MonoBehaviour
 
     void Start()
     {
-        SpawnNewPlates();
     }
 
     public void SpawnNewPlates()
@@ -36,13 +35,11 @@ public class TrayManager : MonoBehaviour
             int rndIndex = Random.Range(0, platePrefabs.Length);
             GameObject obj = Instantiate(platePrefabs[rndIndex], spawnPoints[i].position, Quaternion.identity);
             
-            // Áp dụng Skin đang trang bị
             if (SkinManager.Instance != null)
             {
                 SkinManager.Instance.ApplyEquippedSkin(obj);
             }
 
-            // Gắn đĩa làm con của điểm sinh (để quản lý gọn gàng trong Hierarchy)
             obj.transform.SetParent(spawnPoints[i]); 
         }
     }
@@ -52,7 +49,6 @@ public class TrayManager : MonoBehaviour
         _activePlatesInTray--;
         if (_activePlatesInTray <= 0)
         {
-            // Nghỉ 0.5s để đĩa vừa đặt xuống có thời gian bay/merge trước khi đẻ đĩa mới
             Invoke(nameof(SpawnNewPlates), 0.5f);
         }
     }

@@ -11,8 +11,6 @@ public class SaveSystem : MonoBehaviour
 
     public UserData Data { get; private set; }
 
-    // ==================== MÃ HÓA AES ====================
-    // Key 32 bytes (AES-256) và IV 16 bytes
     private const string AES_KEY = "CheezyPizza_2026"; // 16 ký tự = AES-128
     private const string AES_IV  = "Savoround_IV2026"; // 16 ký tự
 
@@ -20,7 +18,6 @@ public class SaveSystem : MonoBehaviour
 
     public event Action OnDataChanged;
 
-    // === Achievement Events ===
     public event Action<int> OnGoldEarned;       // amount
     public event Action<string> OnSkinUnlocked;  // skinID
 
@@ -55,16 +52,12 @@ public class SaveSystem : MonoBehaviour
         {
             string json = JsonUtility.ToJson(Data, true);
 
-            // TẠM THỜI: Lưu JSON thuần (không mã hóa) để dễ debug
-            // Khi release, đổi lại thành: File.WriteAllText(path, Encrypt(json));
             string path = GetSavePath();
             File.WriteAllText(path, json);
 
-            Debug.Log($"[SaveSystem] Đã lưu game (JSON thuần) tại: {path}");
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            Debug.LogError($"[SaveSystem] Lỗi khi lưu: {e.Message}");
         }
     }
     public void Load()
@@ -73,7 +66,6 @@ public class SaveSystem : MonoBehaviour
 
         if (!File.Exists(path))
         {
-            Debug.Log("[SaveSystem] Không tìm thấy file save → Tạo dữ liệu mới cho người chơi mới.");
             Data = CreateDefaultData();
             Save();
             return;
@@ -83,7 +75,6 @@ public class SaveSystem : MonoBehaviour
         {
             string fileContent = File.ReadAllText(path);
 
-            // TẠM THỜI: Đọc JSON thuần trước, nếu thất bại thì thử giải mã AES (file cũ)
             string json;
             if (fileContent.TrimStart().StartsWith("{"))
             {
@@ -96,11 +87,9 @@ public class SaveSystem : MonoBehaviour
 
             Data = JsonUtility.FromJson<UserData>(json);
 
-            Debug.Log($"[SaveSystem] Đã tải game thành công! Vàng: {Data.Gold}, Skin: {Data.OwnedSkins.Count}, Level: {Data.CurrentLevel}");
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            Debug.LogWarning($"[SaveSystem] File save bị hỏng hoặc bị can thiệp → Reset dữ liệu. Lỗi: {e.Message}");
             Data = CreateDefaultData();
             Save();
         }
@@ -114,7 +103,6 @@ public class SaveSystem : MonoBehaviour
 
         Data = CreateDefaultData();
         OnDataChanged?.Invoke();
-        Debug.Log("[SaveSystem] Đã xóa dữ liệu lưu trữ.");
     }
 
     public void AddGold(int amount)
@@ -124,7 +112,6 @@ public class SaveSystem : MonoBehaviour
         Data.TotalGoldEarned += amount;
         OnGoldEarned?.Invoke(amount);
         OnDataChanged?.Invoke();
-        Debug.Log($"[SaveSystem] +{amount} vàng → Tổng: {Data.Gold}");
     }
 
     public bool SpendGold(int amount)
@@ -132,12 +119,10 @@ public class SaveSystem : MonoBehaviour
         if (amount <= 0) return false;
         if (Data.Gold < amount)
         {
-            Debug.Log($"[SaveSystem] Không đủ vàng! Cần {amount}, chỉ có {Data.Gold}");
             return false;
         }
         Data.Gold -= amount;
         OnDataChanged?.Invoke();
-        Debug.Log($"[SaveSystem] -{amount} vàng → Còn: {Data.Gold}");
         return true;
     }
 
@@ -151,7 +136,6 @@ public class SaveSystem : MonoBehaviour
             Data.OwnedSkins.Add(skinID);
             OnSkinUnlocked?.Invoke(skinID);
             OnDataChanged?.Invoke();
-            Debug.Log($"[SaveSystem] Đã mở khóa skin: {skinID}");
         }
     }
 
@@ -180,7 +164,6 @@ public class SaveSystem : MonoBehaviour
         {
             Data.HighScore = score;
             OnDataChanged?.Invoke();
-            Debug.Log($"[SaveSystem] Kỷ lục mới: {score}!");
         }
     }
 
@@ -189,7 +172,6 @@ public class SaveSystem : MonoBehaviour
         QuestData quest = Data.Quests.Find(q => q.QuestID == questID);
         if (quest == null)
         {
-            Debug.LogWarning($"[SaveSystem] Không tìm thấy nhiệm vụ: {questID}");
             return;
         }
 
@@ -199,7 +181,6 @@ public class SaveSystem : MonoBehaviour
         if (quest.Progress >= quest.Target)
         {
             quest.IsCompleted = true;
-            Debug.Log($"[SaveSystem] Hoàn thành nhiệm vụ: {questID}!");
         }
 
         OnDataChanged?.Invoke();
@@ -284,7 +265,6 @@ public class SaveSystem : MonoBehaviour
 
         Save();
 
-        Debug.Log($"[DailyReward] Ngày {day + 1}/7 — Nhận {goldReward} vàng! (UTC: {Data.LastDailyClaimUTC})");
         return goldReward;
     }
 
@@ -295,7 +275,6 @@ public class SaveSystem : MonoBehaviour
         Data.DailyRewardClaimed = new List<bool> { false, false, false, false, false, false, false };
         Save();
         OnDataChanged?.Invoke();
-        Debug.Log("[DailyReward] Đã reset Daily Reward!");
     }
 
     public void SkipOneDay()
@@ -304,10 +283,9 @@ public class SaveSystem : MonoBehaviour
 
         if (DateTime.TryParse(Data.LastDailyClaimUTC, null, System.Globalization.DateTimeStyles.RoundtripKind, out DateTime lastClaim))
         {
-            Data.LastDailyClaimUTC = lastClaim.AddDays(-1.5).ToString("o");
+            Data.LastDailyClaimUTC = lastClaim.AddDays(-1).ToString("o");
             Save();
             OnDataChanged?.Invoke();
-            Debug.Log("[DailyReward] Đã tua nhanh qua ngày hôm sau để test!");
         }
     }
 
@@ -354,7 +332,6 @@ public class SaveSystem : MonoBehaviour
         return Path.Combine(Application.persistentDataPath, SAVE_FILE);
     }
 
-    // ==================== MÃ HÓA AES ====================
     private string Encrypt(string plainText)
     {
         byte[] keyBytes = Encoding.UTF8.GetBytes(AES_KEY);
@@ -372,7 +349,6 @@ public class SaveSystem : MonoBehaviour
             byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
             byte[] encryptedBytes = encryptor.TransformFinalBlock(plainBytes, 0, plainBytes.Length);
 
-            // Chuyển thành Base64 để lưu dưới dạng text
             return Convert.ToBase64String(encryptedBytes);
         }
     }
@@ -398,7 +374,6 @@ public class SaveSystem : MonoBehaviour
         }
     }
 
-    // ==================== ACHIEVEMENT ====================
 
     public AchievementData GetAchievement(string id)
     {

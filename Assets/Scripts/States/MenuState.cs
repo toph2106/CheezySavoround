@@ -6,7 +6,6 @@ public class MenuState : IGameState
 
     public void Enter(GameManager manager)
     {
-        Debug.Log("[FSM] Vào trạng thái: Menu");
         if (manager.menuPanel != null) manager.menuPanel.SetActive(true);
         if (manager.gamePanel != null) manager.gamePanel.SetActive(false);
 
@@ -20,7 +19,6 @@ public class MenuState : IGameState
 
     public void Exit(GameManager manager)
     {
-        Debug.Log("[FSM] Rời trạng thái: Menu");
         if (manager.menuPanel != null) manager.menuPanel.SetActive(false);
     }
 }

@@ -1,9 +1,5 @@
 using System;
 
-/// <summary>
-/// Dữ liệu runtime + persistence của 1 achievement.
-/// Lưu trong UserData.Achievements.
-/// </summary>
 [Serializable]
 public class AchievementData
 {

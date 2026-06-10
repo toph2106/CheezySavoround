@@ -6,7 +6,6 @@ public class GameJuice : MonoBehaviour
 {
     public static GameJuice Instance { get; private set; }
 
-    // === Achievement Event ===
     public event Action<int> OnComboAchieved;
 
     [Header("Squash & Stretch")]
@@ -54,6 +53,7 @@ public class GameJuice : MonoBehaviour
     private AudioSource _audioSource;
 
     private int _comboCount = 0;
+    public int ComboCount => _comboCount;
 
     void Awake()
     {
@@ -184,7 +184,6 @@ public class GameJuice : MonoBehaviour
 
         _comboCount++;
 
-        // Achievement: combo tracking
         OnComboAchieved?.Invoke(_comboCount);
         if (SaveSystem.Instance != null && _comboCount > SaveSystem.Instance.Data.HighestCombo)
             SaveSystem.Instance.Data.HighestCombo = _comboCount;

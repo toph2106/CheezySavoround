@@ -20,10 +20,6 @@ public class BoosterPackage
     public int amount = 1;
 }
 
-/// <summary>
-/// Shop Booster — Mua bằng Vàng, nhận vật phẩm hỗ trợ.
-/// Clone từ ShopManager (Coin), logic đơn giản: trừ vàng + ghi log.
-/// </summary>
 public class BoosterShopManager : MonoBehaviour
 {
     public static BoosterShopManager Instance { get; private set; }
@@ -91,7 +87,6 @@ public class BoosterShopManager : MonoBehaviour
             SaveSystem.Instance.OnDataChanged -= OnDataChanged;
     }
 
-    // ==================== CHUYỂN TRANG ====================
 
     public void NextItem()
     {
@@ -107,7 +102,6 @@ public class BoosterShopManager : MonoBehaviour
         UpdateDisplay();
     }
 
-    // ==================== CẬP NHẬT HIỂN THỊ ====================
 
     private void UpdateDisplay()
     {
@@ -115,23 +109,18 @@ public class BoosterShopManager : MonoBehaviour
 
         BoosterPackage current = packages[_currentIndex];
 
-        // 1. Đổi ảnh
         if (itemDisplayImage != null && current.packageTexture != null)
             itemDisplayImage.texture = current.packageTexture;
 
-        // 2. Đổi giá
         if (priceText != null)
             priceText.text = current.goldPrice.ToString();
 
-        // 3. Nút BUY: mờ nếu không đủ tiền
         if (buyButton != null)
             buyButton.interactable = SaveSystem.Instance != null
                 && SaveSystem.Instance.GetGold() >= current.goldPrice;
 
-        // 4. Chấm tròn
         UpdatePageDots();
 
-        // 5. Vàng
         UpdateGoldText();
     }
 
@@ -150,7 +139,6 @@ public class BoosterShopManager : MonoBehaviour
             currentGoldText.text = SaveSystem.Instance.GetGold().ToString();
     }
 
-    // ==================== NÚT BUY ====================
 
     private void OnBuyButtonClicked()
     {
@@ -160,18 +148,22 @@ public class BoosterShopManager : MonoBehaviour
 
         if (SaveSystem.Instance.SpendGold(current.goldPrice))
         {
-            // TODO: Dùng số lượng booster này trong GameManager sau
-            Debug.Log($"[BoosterShop] Đã MUA {current.amount}x {current.boosterID} (Giá: {current.goldPrice})");
+            // Cộng booster vào inventory
+            GameplayHUD.AddBooster(current.boosterID, current.amount);
+            Debug.Log($"[Shop] Đã mua {current.amount}x {current.boosterID} với giá {current.goldPrice} vàng");
+
+            // Cập nhật badge đỏ trên HUD
+            var hud = FindFirstObjectByType<GameplayHUD>();
+            if (hud != null) hud.RefreshAll();
         }
         else
         {
-            Debug.LogWarning("[BoosterShop] Không đủ vàng!");
+            Debug.Log($"[Shop] Không đủ vàng để mua {current.boosterID} (cần {current.goldPrice}, có {SaveSystem.Instance.GetGold()})");
         }
 
         UpdateDisplay();
     }
 
-    // ==================== MỞ / ĐÓNG ====================
 
     public void OpenShop()
     {

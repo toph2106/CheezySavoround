@@ -189,7 +189,6 @@ public class SkinShopManager : MonoBehaviour
         if (isOwned)
         {
             SaveSystem.Instance.EquipSkin(current.itemID);
-            Debug.Log($"[SkinShop] Đã trang bị: {current.itemID}");
         }
         else
         {
@@ -197,11 +196,9 @@ public class SkinShopManager : MonoBehaviour
             {
                 SaveSystem.Instance.UnlockSkin(current.itemID);
                 SaveSystem.Instance.EquipSkin(current.itemID);
-                Debug.Log($"[SkinShop] Đã MUA Skin: {current.itemID} (Giá: {current.goldPrice})");
             }
             else
             {
-                Debug.LogWarning("[SkinShop] Không đủ vàng!");
                 UpdateDisplay();
                 return;
             }
