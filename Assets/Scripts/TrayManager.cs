@@ -52,4 +52,21 @@ public class TrayManager : MonoBehaviour
             Invoke(nameof(SpawnNewPlates), 0.5f);
         }
     }
+
+    /// <summary>Xóa hết đĩa trên khay (dùng khi Replay).</summary>
+    public void ClearTray()
+    {
+        CancelInvoke(nameof(SpawnNewPlates));
+        _activePlatesInTray = 0;
+
+        if (spawnPoints == null) return;
+        foreach (var sp in spawnPoints)
+        {
+            if (sp == null) continue;
+            for (int i = sp.childCount - 1; i >= 0; i--)
+            {
+                Destroy(sp.GetChild(i).gameObject);
+            }
+        }
+    }
 }

@@ -34,10 +34,28 @@ public class PlateItem : MonoBehaviour
 
         if (pizzaPrefabs.Length > 0 && pizzaSlicesOnPlate.Count == 0)
         {
-            int count = UnityEngine.Random.Range(minSlices, maxSlices + 1);
+            // Lấy level hiện tại để xác định số loại pizza + số miếng
+            int currentLevel = 1;
+            if (SaveSystem.Instance != null && SaveSystem.Instance.Data != null)
+                currentLevel = SaveSystem.Instance.Data.CurrentLevel;
+
+            // Số loại pizza được phép (vd: level 1-3 chỉ 2 loại, level 4-7 là 3 loại...)
+            int allowedTypes = GameManager.GetPizzaTypeCount(currentLevel);
+            int maxPrefabIndex = Mathf.Min(allowedTypes, pizzaPrefabs.Length);
+
+            // Số miếng pizza trên đĩa theo level
+            int levelMin = GameManager.GetMinSlices(currentLevel);
+            int levelMax = GameManager.GetMaxSlices(currentLevel);
+            // Clamp với giá trị Inspector (nếu bạn muốn override)
+            int finalMin = Mathf.Max(minSlices, levelMin);
+            int finalMax = Mathf.Min(maxSlices, levelMax);
+            if (finalMax < finalMin) finalMax = finalMin;
+
+            int count = UnityEngine.Random.Range(finalMin, finalMax + 1);
             for (int i = 0; i < count; i++)
             {
-                int idx = UnityEngine.Random.Range(0, pizzaPrefabs.Length);
+                // Chỉ random trong N loại đầu tiên
+                int idx = UnityEngine.Random.Range(0, maxPrefabIndex);
                 GameObject obj = Instantiate(pizzaPrefabs[idx], transform.position, Quaternion.identity, transform);
                 obj.transform.localPosition = new Vector3(0, 0.7f, 0);
                 obj.transform.localRotation = Quaternion.Euler(0, i * 60f, 0);

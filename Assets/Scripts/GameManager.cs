@@ -79,6 +79,96 @@ public class GameManager : MonoBehaviour
         15000  // Level 30
     };
 
+    /// <summary>
+    /// Số loại pizza cho mỗi level (index 0 = Level 1).
+    /// Pizza prefab trong PlateItem phải kéo đủ 6 loại.
+    /// Code sẽ chỉ random trong N loại đầu tiên theo level.
+    /// </summary>
+    public static readonly int[] LevelPizzaTypeCount = new int[]
+    {
+        2,  // Level 1  — Dễ: chỉ 2 loại
+        2,  // Level 2
+        2,  // Level 3
+        3,  // Level 4  — Thêm loại 3
+        3,  // Level 5
+        3,  // Level 6
+        3,  // Level 7
+        4,  // Level 8  — Thêm loại 4
+        4,  // Level 9
+        4,  // Level 10
+        4,  // Level 11
+        4,  // Level 12
+        5,  // Level 13 — Thêm loại 5
+        5,  // Level 14
+        5,  // Level 15
+        5,  // Level 16
+        5,  // Level 17
+        5,  // Level 18
+        6,  // Level 19 — Max 6 loại
+        6,  // Level 20
+        6,  // Level 21
+        6,  // Level 22
+        6,  // Level 23
+        6,  // Level 24
+        6,  // Level 25
+        6,  // Level 26
+        6,  // Level 27
+        6,  // Level 28
+        6,  // Level 29
+        6   // Level 30
+    };
+
+    /// <summary>
+    /// Số miếng pizza TỐI THIỂU trên đĩa theo level (index 0 = Level 1).
+    /// </summary>
+    public static readonly int[] LevelMinSlices = new int[]
+    {
+        1, 1, 1,        // Level 1-3:   1-2 miếng
+        1, 1, 1, 1,     // Level 4-7:   1-3 miếng
+        2, 2, 2,        // Level 8-10:  2-3 miếng
+        2, 2, 2, 2, 2,  // Level 11-15: 2-4 miếng
+        2, 2, 2,        // Level 16-18: 2-4 miếng
+        3, 3, 3, 3, 3,  // Level 19-23: 3-5 miếng
+        3, 3, 3, 3,     // Level 24-27: 3-5 miếng
+        4, 4, 4         // Level 28-30: 4-6 miếng (khó nhất)
+    };
+
+    /// <summary>
+    /// Số miếng pizza TỐI ĐA trên đĩa theo level (index 0 = Level 1).
+    /// </summary>
+    public static readonly int[] LevelMaxSlices = new int[]
+    {
+        2, 2, 2,        // Level 1-3
+        3, 3, 3, 3,     // Level 4-7
+        3, 3, 3,        // Level 8-10
+        4, 4, 4, 4, 4,  // Level 11-15
+        4, 4, 4,        // Level 16-18
+        5, 5, 5, 5, 5,  // Level 19-23
+        5, 5, 5, 5,     // Level 24-27
+        6, 6, 6         // Level 28-30
+    };
+
+    /// <summary>Lấy số loại pizza cho level hiện tại.</summary>
+    public static int GetPizzaTypeCount(int level)
+    {
+        int idx = Mathf.Clamp(level - 1, 0, LevelPizzaTypeCount.Length - 1);
+        return LevelPizzaTypeCount[idx];
+    }
+
+    /// <summary>Lấy min slices cho level hiện tại.</summary>
+    public static int GetMinSlices(int level)
+    {
+        int idx = Mathf.Clamp(level - 1, 0, LevelMinSlices.Length - 1);
+        return LevelMinSlices[idx];
+    }
+
+    /// <summary>Lấy max slices cho level hiện tại.</summary>
+    public static int GetMaxSlices(int level)
+    {
+        int idx = Mathf.Clamp(level - 1, 0, LevelMaxSlices.Length - 1);
+        return LevelMaxSlices[idx];
+    }
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -140,9 +230,36 @@ public class GameManager : MonoBehaviour
         ChangeState(GameState.Menu);
     }
 
-    /// <summary>
-    /// Cộng điểm khi nổ đĩa. Tự động tính nhân combo.
-    /// </summary>
+    public void ReplayLevel()
+    {
+        StopAllCoroutines();
+
+        _sessionScore = 0;
+        OnScoreChanged?.Invoke(_sessionScore);
+
+        int level = 1;
+        if (SaveSystem.Instance != null && SaveSystem.Instance.Data != null)
+            level = SaveSystem.Instance.Data.CurrentLevel;
+
+        if (BoosterManager.Instance != null)
+            BoosterManager.Instance.CancelBooster();
+
+        if (TrayManager.Instance != null)
+            TrayManager.Instance.ClearTray();
+
+        if (GridManager.Instance != null)
+        {
+            GridManager.Instance.ClearGrid();
+            GridManager.Instance.LoadLevel(level);
+        }
+
+        ChangeState(GameState.Playing);
+
+        StartCoroutine(WaitForGridThenSpawnPlates());
+
+        Debug.Log($"[Game] Replay Level {level}!");
+    }
+
     public void AddScore(int basePoints)
     {
         int comboMultiplier = 1;
@@ -345,5 +462,28 @@ public class GameManager : MonoBehaviour
     public IGameState GetCurrentStateInstance()
     {
         return _currentState;
+    }
+    public void ReplaySpecificLevel(int targetLevel)
+    {
+        StopAllCoroutines();
+
+        ChangeState(GameState.Playing);
+
+        _sessionScore = 0;
+        OnScoreChanged?.Invoke(_sessionScore);
+
+        if (BoosterManager.Instance != null)
+            BoosterManager.Instance.CancelBooster();
+
+        if (TrayManager.Instance != null)
+            TrayManager.Instance.ClearTray();
+
+        if (GridManager.Instance != null)
+        {
+            GridManager.Instance.ClearGrid();
+            GridManager.Instance.LoadLevel(targetLevel);
+        }
+
+        StartCoroutine(WaitForGridThenSpawnPlates());
     }
 }

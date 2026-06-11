@@ -106,8 +106,12 @@ MonoBehaviour:
   pizzaPrefabs:
   - {fileID: 6434344151614379749, guid: 033bce59dcebbb14caa8155686395e81, type: 3}
   - {fileID: 4127609309335391622, guid: 9d4302f95ac56a14a9728d65a1250dd3, type: 3}
+  - {fileID: 6016281298062590828, guid: 04cc6ba5f5f250c4ca9b91d152b5dc67, type: 3}
+  - {fileID: 6980498567844567830, guid: f39a37ec3b72aab42a6437c5cbf19534, type: 3}
+  - {fileID: 5910030720588941267, guid: 020ffe86e74ef7d498c3b3c95c133eaa, type: 3}
+  - {fileID: 5426758864706629386, guid: 9fa35d2a1bc5b8647964c61fd0b39931, type: 3}
   minSlices: 1
-  maxSlices: 3
+  maxSlices: 6
   dragHeight: 2
   slotLayer:
     serializedVersion: 2
