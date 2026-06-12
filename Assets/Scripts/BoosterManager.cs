@@ -6,16 +6,14 @@ public class BoosterManager : MonoBehaviour
 {
     public static BoosterManager Instance { get; private set; }
 
-    [Header("Booster Buttons (kéo 4 nút vào đây)")]
+    [Header("Booster Buttons")]
     public UnityEngine.UI.Button[] boosterButtons;
 
-    [Header("Booster IDs (phải khớp với Shop)")]
+    [Header("Booster IDs")]
     public string[] boosterIDs = { "11", "12", "13", "14" };
 
     [Header("Visual Feedback")]
-    [Tooltip("Màu viền khi đang chọn booster")]
     public Color outlineColor = new Color(1f, 0f, 0f, 1f);
-    [Tooltip("Độ dày viền (pixel)")]
     public Vector2 outlineSize = new Vector2(6f, 6f);
 
     public string ActiveBoosterID { get; private set; } = "";
@@ -36,7 +34,6 @@ public class BoosterManager : MonoBehaviour
     {
         _mainCamera = Camera.main;
 
-        // Tạo Outline component cho mỗi nút (tắt sẵn)
         if (boosterButtons != null)
         {
             _buttonOutlines = new Outline[boosterButtons.Length];
@@ -88,21 +85,27 @@ public class BoosterManager : MonoBehaviour
         int count = PlayerPrefs.GetInt(id, 0);
         if (count <= 0)
         {
-            Debug.Log($"[Booster] Hết {id}! Mua thêm trong Shop.");
+            ShopController shop = ShopController.Instance;
+            if (shop == null)
+            {
+                shop = FindFirstObjectByType<ShopController>(FindObjectsInactive.Include);
+            }
+            if (shop != null)
+            {
+                shop.OpenShop();
+                shop.ShowBooster();
+            }
             return;
         }
 
         if (GameManager.Instance == null || !GameManager.Instance.IsPlaying()) return;
 
-        // TẮT viền cũ trước khi bật viền mới
         CancelBooster();
 
         ActiveBoosterID = id;
         _activeButtonIndex = buttonIndex;
 
         HighlightButton(buttonIndex, true);
-
-        Debug.Log($"[Booster] Đã chọn công cụ {id}. Bấm vào đĩa trên grid để dùng. Click phải / Escape để hủy.");
     }
 
     public void CancelBooster()
@@ -142,7 +145,6 @@ public class BoosterManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("[Booster] Bấm vào đĩa trên grid để dùng công cụ!");
                 }
             }
         }
@@ -166,9 +168,6 @@ public class BoosterManager : MonoBehaviour
 
             var hud = FindFirstObjectByType<GameplayHUD>();
             if (hud != null) hud.RefreshAll();
-
-            Debug.Log($"[Booster] Đã dùng công cụ {id} thành công!");
-
             if (id != "13" && plate != null && plate.mySlot != null && GridManager.Instance != null)
             {
                 GridManager.Instance.ProcessMergesAt(plate.mySlot);
@@ -302,7 +301,6 @@ public class BoosterManager : MonoBehaviour
             return false;
         }
 
-        // Spawn pizza mới
         GameObject newSliceObj = Instantiate(prefab, plate.transform);
         PizzaItem newSlice = newSliceObj.GetComponent<PizzaItem>();
         if (newSlice == null)
@@ -310,7 +308,6 @@ public class BoosterManager : MonoBehaviour
             Destroy(newSliceObj);
             return false;
         }
-
         newSlice.pizzaType = majorityType;
         newSlice.myPlate = plate;
         newSlice.mySlot = plate.mySlot;
@@ -319,10 +316,6 @@ public class BoosterManager : MonoBehaviour
 
         int rotIdx = plate.pizzaSlicesOnPlate.Count - 1;
         newSlice.MoveTo(rotIdx);
-
-        Debug.Log($"[Booster] Extra Slice: Thêm 1 miếng pizza type {majorityType} (tổng: {plate.pizzaSlicesOnPlate.Count}/6)");
-
-        // Kiểm tra nổ nếu đủ 6 miếng cùng loại
         CheckAndBloom(plate);
 
         return true;
@@ -417,7 +410,6 @@ public class BoosterManager : MonoBehaviour
 
         if (allSame)
         {
-            Debug.Log($"[Booster] BLOOM! Đĩa đủ 6 miếng type {firstType} → NỔ!");
             plate.ExplodePlate();
         }
     }

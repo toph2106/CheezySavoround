@@ -7,11 +7,9 @@ public class AchievementUI : MonoBehaviour
     public GameObject achievementPanel;
 
     [Header("Scroll Content")]
-    [Tooltip("Content object bên trong ScrollView (có Vertical Layout Group)")]
     public Transform scrollContent;
 
     [Header("Prefab")]
-    [Tooltip("Prefab AchievementSlot — sẽ được Instantiate cho mỗi achievement")]
     public GameObject slotPrefab;
 
     [Header("Nút đóng")]

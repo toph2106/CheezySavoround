@@ -7,20 +7,10 @@ using TMPro;
 [Serializable]
 public class SkinPackage
 {
-    [Tooltip("Mã ID duy nhất (VD: skin_wood, skin_gold)")]
     public string itemID;
-
-    [Tooltip("Ảnh hiển thị Skin (kéo ảnh vào đây)")]
     public Texture packageTexture;
-
-    [Tooltip("Giá mua bằng VÀNG (0 = Miễn phí)")]
     public int goldPrice = 200;
-
-    [Header("Dữ liệu 3D (Tùy chọn)")]
-    [Tooltip("Mesh (Hình dáng) đĩa — để trống nếu không đổi")]
     public Mesh plateMesh;
-
-    [Tooltip("Material (Màu sắc) đĩa — để trống nếu không đổi")]
     public Material plateMaterial;
 }
 
@@ -41,13 +31,10 @@ public class SkinShopManager : MonoBehaviour
     [Header("Nút Buy (Ảnh BUY có sẵn, chỉ cần kéo Button vào)")]
     public Button buyButton;
 
-    [Tooltip("Ảnh hiện khi chưa mua (trạng thái BUY)")]
     public Texture btnTextureBuy;
 
-    [Tooltip("Ảnh hiện khi đã mua nhưng chưa trang bị (trạng thái USE)")]
     public Texture btnTextureUse;
 
-    [Tooltip("Ảnh hiện khi đang trang bị (trạng thái USED)")]
     public Texture btnTextureUsed;
 
     [Header("Nút chuyển trang")]
@@ -136,10 +123,16 @@ public class SkinShopManager : MonoBehaviour
 
         if (priceText != null)
         {
-            priceText.gameObject.SetActive(!isOwned);
-            priceText.text = current.goldPrice.ToString();
+            priceText.gameObject.SetActive(true);
+            if (isOwned)
+            {
+                priceText.text = "Owned";
+            }
+            else
+            {
+                priceText.text = current.goldPrice.ToString();
+            }
         }
-
         RawImage btnRaw = buyButton != null ? buyButton.GetComponentInChildren<RawImage>() : null;
 
         if (isEquipped)
@@ -196,6 +189,11 @@ public class SkinShopManager : MonoBehaviour
             {
                 SaveSystem.Instance.UnlockSkin(current.itemID);
                 SaveSystem.Instance.EquipSkin(current.itemID);
+
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlayChaChing();
+                }
             }
             else
             {

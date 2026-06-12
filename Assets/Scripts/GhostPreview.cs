@@ -5,14 +5,11 @@ public class GhostPreview : MonoBehaviour
     public static GhostPreview Instance { get; private set; }
 
     [Header("Ghost Settings")]
-    [Tooltip("Độ trong suốt của ghost (0 = vô hình, 1 = đặc)")]
     [Range(0f, 1f)]
     public float ghostAlpha = 0.35f;
 
-    [Tooltip("Màu tint cho ghost hợp lệ (mặc định xanh nhạt)")]
     public Color ghostTint = new Color(0.5f, 1f, 0.7f, 1f);
 
-    [Tooltip("Màu tint cho ghost không hợp lệ (mặc định đỏ nhạt)")]
     public Color invalidTint = new Color(1f, 0.4f, 0.4f, 1f);
 
     private GameObject _ghostObject;

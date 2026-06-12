@@ -8,32 +8,23 @@ using TMPro;
 [Serializable]
 public class DaySlotConfig
 {
-    [Tooltip("Ảnh icon phần thưởng (đồng xu, pizza, rương...)")]
     public Texture rewardIcon;
 
-    [Tooltip("Số vàng nhận được")]
     public int goldAmount = 50;
 
-    [Tooltip("Mô tả ngắn hiển thị dưới icon (VD: '150', 'TRASH CAN', 'BIG REWARDS')")]
     public string rewardLabel = "";
 }
 
 [Serializable]
 public class DaySlotUI
 {
-    [Tooltip("RawImage nền ô ngày (để đổi sáng/tối)")]
     public RawImage slotBackground;
-
-    [Tooltip("RawImage icon phần thưởng")]
     public RawImage rewardImage;
 
-    [Tooltip("Text 'DAY X' phía trên")]
     public TextMeshProUGUI dayLabel;
 
-    [Tooltip("Text mô tả / số vàng phía dưới")]
     public TextMeshProUGUI rewardText;
 
-    [Tooltip("Text 'CLAIMED' — ẩn/hiện tùy trạng thái")]
     public TextMeshProUGUI claimedText;
 }
 
@@ -49,14 +40,11 @@ public class DailyRewardUI : MonoBehaviour
     public List<DaySlotUI> daySlotUIs = new List<DaySlotUI>();
 
     [Header("Ảnh nền ô ngày")]
-    [Tooltip("Ảnh nền ô bình thường / đã nhận (pu dalily 1)")]
     public Texture slotLockedBG;
 
-    [Tooltip("Ảnh nền ô ĐANG CHỜ NHẬN — to hơn (pu dalily 1.1)")]
     public Texture slotReadyBG;
 
-    [Header("Scale ô Ready (to hơn ô thường)")]
-    [Tooltip("Nhân scale ô Ready so với gốc. Kéo lúc Play để chỉnh cho khớp demo")]
+    [Header("Scale ô Ready")]
     [Range(1f, 2f)]
     public float readyScale = 1.3f;
 
@@ -72,7 +60,6 @@ public class DailyRewardUI : MonoBehaviour
     public Color claimInactiveColor = new Color(0.3f, 0.25f, 0.2f, 1f);
 
     [Header("Hiệu ứng")]
-    [Tooltip("Thời gian rải ô ra từ trái qua phải (giây)")]
     public float staggerDelay = 0.08f;
 
     private Dictionary<int, Vector3> _originalScales = new Dictionary<int, Vector3>();

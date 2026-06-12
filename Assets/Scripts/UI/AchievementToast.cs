@@ -14,13 +14,10 @@ public class AchievementToast : MonoBehaviour
     public TextMeshProUGUI descText;
 
     [Header("Animation")]
-    [Tooltip("Thời gian trượt vào/ra (giây)")]
     public float slideDuration = 0.4f;
 
-    [Tooltip("Thời gian hiện toast (giây)")]
     public float displayDuration = 3f;
 
-    [Tooltip("Khoảng cách trượt từ trên xuống (pixel)")]
     public float slideDistance = 150f;
 
     private RectTransform _panelRect;

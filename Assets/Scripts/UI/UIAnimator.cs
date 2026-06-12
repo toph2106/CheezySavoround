@@ -14,7 +14,6 @@ public class UIAnimator : MonoBehaviour
         Instance = this;
     }
 
-    // ===================== PANEL SLIDE =====================
 
     public void SlideIn(RectTransform panel, SlideDirection direction = SlideDirection.Bottom, float duration = 0.4f, Action onComplete = null)
     {

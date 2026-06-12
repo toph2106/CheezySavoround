@@ -7,16 +7,9 @@ using TMPro;
 [Serializable]
 public class BoosterPackage
 {
-    [Tooltip("Mã Booster (VD: booster_hammer, booster_shuffle)")]
     public string boosterID;
-
-    [Tooltip("Ảnh hiển thị Booster (kéo ảnh vào đây)")]
     public Texture packageTexture;
-
-    [Tooltip("Giá mua bằng VÀNG")]
     public int goldPrice = 150;
-
-    [Tooltip("Số lượng nhận được khi mua")]
     public int amount = 1;
 }
 
@@ -148,11 +141,14 @@ public class BoosterShopManager : MonoBehaviour
 
         if (SaveSystem.Instance.SpendGold(current.goldPrice))
         {
-            // Cộng booster vào inventory
             GameplayHUD.AddBooster(current.boosterID, current.amount);
             Debug.Log($"[Shop] Đã mua {current.amount}x {current.boosterID} với giá {current.goldPrice} vàng");
 
-            // Cập nhật badge đỏ trên HUD
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayChaChing();
+            }
+
             var hud = FindFirstObjectByType<GameplayHUD>();
             if (hud != null) hud.RefreshAll();
         }

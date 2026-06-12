@@ -5,13 +5,8 @@ public class ShopController : MonoBehaviour
     public static ShopController Instance { get; private set; }
 
     [Header("3 Sub-Panel (kéo CoinS, SkinS, BoostersS vào đây)")]
-    [Tooltip("Panel của Shop Coin (CoinS)")]
     public GameObject coinPanel;
-
-    [Tooltip("Panel của Shop Skin (SkinS)")]
     public GameObject skinPanel;
-
-    [Tooltip("Panel của Shop Boosters (BoostersS)")]
     public GameObject boosterPanel;
 
     void Awake()

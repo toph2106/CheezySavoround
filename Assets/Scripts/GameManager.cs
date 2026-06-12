@@ -28,7 +28,6 @@ public class GameManager : MonoBehaviour
     public GameObject floatingTextPrefab;
 
     [Header("Level Transition")]
-    [Tooltip("Kéo LevelTransition object vào đây (nếu có)")]
     public LevelTransition levelTransition;
 
     public event Action<GameState, GameState> OnStateChanged;
@@ -37,7 +36,7 @@ public class GameManager : MonoBehaviour
     public event Action OnGameOver;
 
     public event Action<int> OnScoreChanged;
-    public event Action<int, int> OnLevelCompleted; // (completedLevel, nextLevel)
+    public event Action<int, int> OnLevelCompleted;
 
     private IGameState _currentState;
     private Dictionary<GameState, IGameState> _stateCache;
@@ -78,12 +77,6 @@ public class GameManager : MonoBehaviour
         13000, // Level 29
         15000  // Level 30
     };
-
-    /// <summary>
-    /// Số loại pizza cho mỗi level (index 0 = Level 1).
-    /// Pizza prefab trong PlateItem phải kéo đủ 6 loại.
-    /// Code sẽ chỉ random trong N loại đầu tiên theo level.
-    /// </summary>
     public static readonly int[] LevelPizzaTypeCount = new int[]
     {
         2,  // Level 1  — Dễ: chỉ 2 loại
@@ -118,9 +111,6 @@ public class GameManager : MonoBehaviour
         6   // Level 30
     };
 
-    /// <summary>
-    /// Số miếng pizza TỐI THIỂU trên đĩa theo level (index 0 = Level 1).
-    /// </summary>
     public static readonly int[] LevelMinSlices = new int[]
     {
         1, 1, 1,        // Level 1-3:   1-2 miếng
@@ -130,12 +120,9 @@ public class GameManager : MonoBehaviour
         2, 2, 2,        // Level 16-18: 2-4 miếng
         3, 3, 3, 3, 3,  // Level 19-23: 3-5 miếng
         3, 3, 3, 3,     // Level 24-27: 3-5 miếng
-        4, 4, 4         // Level 28-30: 4-6 miếng (khó nhất)
+        4, 4, 4         // Level 28-30: 4-6 miếng
     };
 
-    /// <summary>
-    /// Số miếng pizza TỐI ĐA trên đĩa theo level (index 0 = Level 1).
-    /// </summary>
     public static readonly int[] LevelMaxSlices = new int[]
     {
         2, 2, 2,        // Level 1-3
@@ -148,21 +135,18 @@ public class GameManager : MonoBehaviour
         6, 6, 6         // Level 28-30
     };
 
-    /// <summary>Lấy số loại pizza cho level hiện tại.</summary>
     public static int GetPizzaTypeCount(int level)
     {
         int idx = Mathf.Clamp(level - 1, 0, LevelPizzaTypeCount.Length - 1);
         return LevelPizzaTypeCount[idx];
     }
 
-    /// <summary>Lấy min slices cho level hiện tại.</summary>
     public static int GetMinSlices(int level)
     {
         int idx = Mathf.Clamp(level - 1, 0, LevelMinSlices.Length - 1);
         return LevelMinSlices[idx];
     }
 
-    /// <summary>Lấy max slices cho level hiện tại.</summary>
     public static int GetMaxSlices(int level)
     {
         int idx = Mathf.Clamp(level - 1, 0, LevelMaxSlices.Length - 1);
@@ -411,7 +395,29 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            if (levelTransition != null)
+            {
+                StartCoroutine(TestCloudTransition());
+            }
+            else
+            {
+            }
+        }
+
         _currentState?.Execute(this);
+    }
+
+    private System.Collections.IEnumerator TestCloudTransition()
+    {
+        Debug.Log("☁️ Đám mây bay vào...");
+        levelTransition.PlayTransitionIn();
+        
+        yield return new WaitForSeconds(levelTransition.transitionDuration + 0.5f);
+
+        Debug.Log("☁️ Đám mây bay ra...");
+        levelTransition.PlayTransitionOut();
     }
 
     public void ChangeState(GameState newState)
