@@ -162,6 +162,8 @@ public class GameManager : MonoBehaviour
         }
         Instance = this;
 
+        Application.targetFrameRate = 60; // Bắt buộc game chạy mượt ở 60 FPS trên mobile
+
         _stateCache = new Dictionary<GameState, IGameState>
         {
             { GameState.Menu,          new MenuState() },

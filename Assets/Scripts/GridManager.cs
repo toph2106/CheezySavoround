@@ -31,9 +31,15 @@ public class GridManager : MonoBehaviour
     public float moveWait = 0.4f;
     public float bloomWait = 0.15f;
 
-    [Header("Tile Animation")]
+    [Header("Visual Settings")]
+    public float tileScaleDuration = 0.2f;
     public float tileSpawnDelay = 0.05f;
-    public float tileScaleDuration = 0.25f;
+
+    [Header("Tile Colors (Chessboard)")]
+    public Color tileColor1 = Color.white; // Trắng tinh (Màu nguyên bản)
+    public Color tileColor2 = new Color(0.85f, 0.82f, 0.78f, 1f); // Trắng ngà / Xám ấm
+
+    private MaterialPropertyBlock _propBlock;
 
     public Slot[,] gridArray;
     private int _cols;
@@ -132,6 +138,15 @@ public class GridManager : MonoBehaviour
                 Slot slot = tile.GetComponent<Slot>();
                 slot.Initialize(x, z);
                 gridArray[x, z] = slot;
+
+                MeshRenderer mr = tile.GetComponent<MeshRenderer>();
+                if (mr != null)
+                {
+                    if (_propBlock == null) _propBlock = new MaterialPropertyBlock();
+                    mr.GetPropertyBlock(_propBlock);
+                    _propBlock.SetColor("_BaseColor", ((x + z) % 2 == 0) ? tileColor1 : tileColor2);
+                    mr.SetPropertyBlock(_propBlock);
+                }
 
                 tile.transform.localScale = Vector3.zero;
                 StartCoroutine(ScaleTileIn(tile.transform, tileScaleDuration));

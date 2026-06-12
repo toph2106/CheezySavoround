@@ -81,6 +81,20 @@ public class GameplayHUD : MonoBehaviour
         }
     }
 
+    private static string[] _numberCache;
+
+    void Awake()
+    {
+        if (_numberCache == null)
+        {
+            _numberCache = new string[10001];
+            for (int i = 0; i <= 10000; i++)
+            {
+                _numberCache[i] = i.ToString();
+            }
+        }
+    }
+
     void Update()
     {
         // Slider lướt mượt
@@ -98,7 +112,12 @@ public class GameplayHUD : MonoBehaviour
                 _displayedCoin = (int)Mathf.Lerp(_displayedCoin, _targetCoin, Time.deltaTime * 8f);
 
             if (coinText != null)
-                coinText.text = _displayedCoin.ToString();
+            {
+                if (_displayedCoin >= 0 && _displayedCoin <= 10000)
+                    coinText.text = _numberCache[_displayedCoin];
+                else
+                    coinText.text = _displayedCoin.ToString(); // Rất hiếm khi đạt tới đây
+            }
         }
     }
 
