@@ -7,66 +7,45 @@ using TMPro;
 [Serializable]
 public class CoinPackage
 {
-    [Tooltip("Ảnh hiển thị gói coin (kéo ảnh vào đây)")]
     public Texture packageTexture;
 
-    [Tooltip("Giá hiển thị (VD: 1.99$)")]
     public string displayPrice = "1.99$";
-
-    [Tooltip("Số vàng nhận được khi mua gói này")]
     public int goldAmount = 100;
 }
 public class ShopManager : MonoBehaviour
 {
     public static ShopManager Instance { get; private set; }
 
-    // ==================== DANH SÁCH GÓI COIN ====================
     [Header("Danh sách gói Coin (Kéo ảnh + Gõ giá)")]
     public List<CoinPackage> packages = new List<CoinPackage>();
 
-    // ==================== SHOP PANEL ====================
     [Header("Shop Panel")]
     public GameObject shopPanel;
 
-    // ==================== KHUNG HIỂN THỊ ====================
     [Header("Khung hiển thị chính")]
-    [Tooltip("RawImage ở giữa (đang hiện hình đồng xu)")]
     public RawImage itemDisplayImage;
 
-    [Tooltip("Chữ giá tiền (Text TMP — cái 1.99$)")]
     public TextMeshProUGUI priceText;
 
-    // ==================== NÚT BUY (Chỉ cần Button, không cần Text) ====================
     [Header("Nút Buy (Ảnh BUY có sẵn, chỉ cần kéo Button vào)")]
     public Button buyButton;
 
-    // ==================== NÚT CHUYỂN TRANG ====================
-    [Header("Nút chuyển trang (Kéo NextR và NextL vào đây)")]
-    [Tooltip("Nút mũi tên Phải")]
+    [Header("Nút chuyển trang)")]
     public Button nextButton;
 
     [Tooltip("Nút mũi tên Trái")]
     public Button prevButton;
 
-    // ==================== CHẤM TRÒN (PAGE DOTS) ====================
-    [Header("Chấm tròn (Page Dots)")]
-    [Tooltip("Kéo các RawImage chấm tròn vào đây, từ trái sang phải")]
+    [Header("Chấm tròn")]
     public List<RawImage> pageDots = new List<RawImage>();
 
-    [Tooltip("Ảnh chấm khi ĐANG CHỌN (tím)")]
     public Texture dotActiveTexture;
 
-    [Tooltip("Ảnh chấm khi KHÔNG CHỌN (gỗ/xám)")]
     public Texture dotInactiveTexture;
 
-    // ==================== HIỂN THỊ VÀNG ====================
     [Header("Hiển thị Vàng (Tùy chọn)")]
     public TextMeshProUGUI currentGoldText;
-
-    // ==================== BIẾN NỘI BỘ ====================
     private int _currentIndex = 0;
-
-    // ==================== KHỞI TẠO ====================
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -184,6 +163,11 @@ public class ShopManager : MonoBehaviour
 
         SaveSystem.Instance.AddGold(current.goldAmount);
         Debug.Log($"[Shop] Đã mua gói {current.displayPrice} → +{current.goldAmount} vàng!");
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayCoin();
+        }
 
         UpdateDisplay();
     }

@@ -52,8 +52,6 @@ public class TrayManager : MonoBehaviour
             Invoke(nameof(SpawnNewPlates), 0.5f);
         }
     }
-
-    /// <summary>Xóa hết đĩa trên khay (dùng khi Replay).</summary>
     public void ClearTray()
     {
         CancelInvoke(nameof(SpawnNewPlates));

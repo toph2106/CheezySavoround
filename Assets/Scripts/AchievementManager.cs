@@ -7,7 +7,6 @@ public class AchievementManager : MonoBehaviour
     public static AchievementManager Instance { get; private set; }
 
     [Header("Danh sách Achievement")]
-    [Tooltip("Thêm / bớt / sắp xếp")]
     public AchievementConfig[] configs;
 
     public event Action<AchievementConfig> OnAchievementUnlocked;
@@ -44,8 +43,6 @@ public class AchievementManager : MonoBehaviour
         UnsubscribeEvents();
     }
 
-    // ==================== EVENT SUBSCRIPTION ====================
-
     private void SubscribeEvents()
     {
         PlateItem.OnAnyPlateExploded += HandlePlateExploded;
@@ -60,6 +57,7 @@ public class AchievementManager : MonoBehaviour
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnGameOver += HandleGameOver;
+            GameManager.Instance.OnLevelCompleted += HandleLevelCompleted;
         }
 
         if (GameJuice.Instance != null)
@@ -82,6 +80,7 @@ public class AchievementManager : MonoBehaviour
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnGameOver -= HandleGameOver;
+            GameManager.Instance.OnLevelCompleted -= HandleLevelCompleted;
         }
 
         if (GameJuice.Instance != null)
@@ -89,8 +88,6 @@ public class AchievementManager : MonoBehaviour
             GameJuice.Instance.OnComboAchieved -= HandleCombo;
         }
     }
-
-    // ==================== EVENT HANDLERS ====================
 
     private void HandlePlateExploded()
     {
@@ -127,14 +124,18 @@ public class AchievementManager : MonoBehaviour
         CheckAndUnlock(AchievementType.GamesPlayed, total);
     }
 
+    private void HandleLevelCompleted(int level, int score)
+    {
+        if (SaveSystem.Instance == null) return;
+        int cleared = SaveSystem.Instance.Data.HighestUnlockedLevel - 1;
+        CheckAndUnlock(AchievementType.LevelsCleared, cleared);
+    }
+
     private void HandleCombo(int comboCount)
     {
         CheckAndUnlock(AchievementType.ComboReached, comboCount);
     }
 
-    // ==================== CORE LOGIC ====================
-
-    /// Kiểm tra tất cả achievement thuộc type này.
     private void CheckAndUnlock(AchievementType type, int currentValue)
     {
         if (SaveSystem.Instance == null || configs == null) return;
@@ -145,7 +146,6 @@ public class AchievementManager : MonoBehaviour
 
             AchievementData ach = SaveSystem.Instance.GetAchievement(cfg.achievementID);
 
-            // Đã unlock rồi → skip
             if (ach != null && ach.IsUnlocked) continue;
 
             // Cập nhật progress
@@ -167,8 +167,6 @@ public class AchievementManager : MonoBehaviour
 
         SaveSystem.Instance.Save();
     }
-
-    // ==================== PUBLIC API ====================
 
     public (int progress, int target, bool unlocked, bool claimed) GetProgress(string achievementID)
     {
@@ -198,7 +196,6 @@ public class AchievementManager : MonoBehaviour
         return success;
     }
 
-    /// Lấy config theo ID.
     public AchievementConfig GetConfig(string achievementID)
     {
         return _configMap.ContainsKey(achievementID) ? _configMap[achievementID] : null;

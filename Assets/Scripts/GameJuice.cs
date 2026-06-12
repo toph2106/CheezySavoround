@@ -9,45 +9,32 @@ public class GameJuice : MonoBehaviour
     public event Action<int> OnComboAchieved;
 
     [Header("Squash & Stretch")]
-    [Tooltip("Thời gian hiệu ứng bóp giãn (giây)")]
     public float squashDuration = 0.3f;
-
-    [Tooltip("Mức bóp dẹt tối đa (X/Z scale)")]
     public float squashScaleXZ = 1.25f;
 
-    [Tooltip("Mức bóp dẹt tối đa (Y scale)")]
     public float squashScaleY = 0.7f;
 
-    [Tooltip("Mức giãn dọc (Y scale)")]
     public float stretchScaleY = 1.2f;
 
-    [Tooltip("Mức giãn dọc (X/Z scale)")]
     public float stretchScaleXZ = 0.85f;
 
     [Header("Shake")]
-    [Tooltip("Thời gian rung lắc (giây)")]
     public float shakeDuration = 0.3f;
 
-    [Tooltip("Biên độ rung lắc tối đa (đơn vị world)")]
     public float shakeIntensity = 0.15f;
 
-    [Tooltip("Tốc độ rung (lần/giây)")]
     public float shakeFrequency = 30f;
 
     [Header("Pitch Shift - Âm thanh nổ")]
-    [Tooltip("Kéo AudioClip âm thanh nổ hoa vào đây")]
     public AudioClip explosionClip;
 
-    [Tooltip("Kéo AudioClip âm thanh đặt đĩa vào đây")]
     public AudioClip placeClip;
 
     [Tooltip("Pitch cơ bản")]
     public float basePitch = 1.0f;
 
-    [Tooltip("Mỗi combo tăng thêm bao nhiêu pitch")]
     public float pitchStep = 0.1f;
 
-    [Tooltip("Pitch tối đa")]
     public float maxPitch = 1.6f;
 
     private AudioSource _audioSource;

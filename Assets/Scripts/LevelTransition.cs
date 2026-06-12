@@ -1,96 +1,53 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class LevelTransition : MonoBehaviour
 {
-    [Header("Settings")]
-    [Tooltip("Thời gian bay vào/ra (giây)")]
+    [Header("Cài Đặt Thời Gian")]
     public float transitionDuration = 0.6f;
 
-    [Tooltip("Hướng bay: từ bên nào bay vào")]
-    public SlideDirection direction = SlideDirection.Left;
+    [Header("2 Đám Mây Đóng Mở Cửa")]
+    public RectTransform leftCloud;
+    public RectTransform rightCloud;
 
-    private RectTransform _rect;
     private CanvasGroup _canvasGroup;
-    private Vector2 _hiddenPos;
-    private Vector2 _shownPos;
 
     void Awake()
     {
-        _rect = GetComponent<RectTransform>();
         _canvasGroup = GetComponent<CanvasGroup>();
-
         if (_canvasGroup == null)
             _canvasGroup = gameObject.AddComponent<CanvasGroup>();
 
-        _shownPos = Vector2.zero;
-
-        CalculateHiddenPosition();
-
-        _rect.anchoredPosition = _hiddenPos;
         _canvasGroup.alpha = 0f;
         _canvasGroup.blocksRaycasts = false;
         gameObject.SetActive(false);
     }
 
-    private void CalculateHiddenPosition()
+    private float GetOffscreenOffset()
     {
-        float screenWidth = Screen.width;
-        float screenHeight = Screen.height;
-
-        switch (direction)
-        {
-            case SlideDirection.Left:
-                _hiddenPos = new Vector2(-screenWidth, 0);
-                break;
-            case SlideDirection.Right:
-                _hiddenPos = new Vector2(screenWidth, 0);
-                break;
-            case SlideDirection.Top:
-                _hiddenPos = new Vector2(0, screenHeight);
-                break;
-            case SlideDirection.Bottom:
-                _hiddenPos = new Vector2(0, -screenHeight);
-                break;
-        }
+        RectTransform rect = GetComponent<RectTransform>();
+        return rect.rect.width > 0 ? rect.rect.width : Screen.width;
     }
 
     public void PlayTransitionIn()
     {
         gameObject.SetActive(true);
         _canvasGroup.blocksRaycasts = true;
-        CalculateHiddenPosition();
-        StartCoroutine(SlideRoutine(_hiddenPos, _shownPos, 0f, 1f));
+
+        float offset = GetOffscreenOffset();
+
+        if (leftCloud != null) leftCloud.anchoredPosition = new Vector2(-offset, 0);
+        if (rightCloud != null) rightCloud.anchoredPosition = new Vector2(offset, 0);
+
+        StartCoroutine(SlideInRoutine(offset));
     }
+
     public void PlayTransitionOut()
     {
-        CalculateHiddenPosition();
-
-        Vector2 exitPos;
-        switch (direction)
-        {
-            case SlideDirection.Left:
-                exitPos = new Vector2(Screen.width, 0);
-                break;
-            case SlideDirection.Right:
-                exitPos = new Vector2(-Screen.width, 0);
-                break;
-            case SlideDirection.Top:
-                exitPos = new Vector2(0, -Screen.height);
-                break;
-            case SlideDirection.Bottom:
-                exitPos = new Vector2(0, Screen.height);
-                break;
-            default:
-                exitPos = _hiddenPos;
-                break;
-        }
-
-        StartCoroutine(SlideOutRoutine(_shownPos, exitPos, 1f, 0f));
+        StartCoroutine(SlideOutRoutine(GetOffscreenOffset()));
     }
 
-    private IEnumerator SlideRoutine(Vector2 from, Vector2 to, float alphaFrom, float alphaTo)
+    private IEnumerator SlideInRoutine(float offset)
     {
         float elapsed = 0f;
 
@@ -98,20 +55,24 @@ public class LevelTransition : MonoBehaviour
         {
             elapsed += Time.unscaledDeltaTime;
             float t = Mathf.Clamp01(elapsed / transitionDuration);
-
             float eased = 1f - (1f - t) * (1f - t);
 
-            _rect.anchoredPosition = Vector2.Lerp(from, to, eased);
-            _canvasGroup.alpha = Mathf.Lerp(alphaFrom, alphaTo, eased);
+            if (leftCloud != null)
+                leftCloud.anchoredPosition = Vector2.Lerp(new Vector2(-offset, 0), Vector2.zero, eased);
 
+            if (rightCloud != null)
+                rightCloud.anchoredPosition = Vector2.Lerp(new Vector2(offset, 0), Vector2.zero, eased);
+
+            _canvasGroup.alpha = Mathf.Lerp(0f, 1f, eased);
             yield return null;
         }
 
-        _rect.anchoredPosition = to;
-        _canvasGroup.alpha = alphaTo;
+        if (leftCloud != null) leftCloud.anchoredPosition = Vector2.zero;
+        if (rightCloud != null) rightCloud.anchoredPosition = Vector2.zero;
+        _canvasGroup.alpha = 1f;
     }
 
-    private IEnumerator SlideOutRoutine(Vector2 from, Vector2 to, float alphaFrom, float alphaTo)
+    private IEnumerator SlideOutRoutine(float offset)
     {
         float elapsed = 0f;
 
@@ -119,17 +80,22 @@ public class LevelTransition : MonoBehaviour
         {
             elapsed += Time.unscaledDeltaTime;
             float t = Mathf.Clamp01(elapsed / transitionDuration);
-
             float eased = t * t;
 
-            _rect.anchoredPosition = Vector2.Lerp(from, to, eased);
-            _canvasGroup.alpha = Mathf.Lerp(alphaFrom, alphaTo, eased);
+            if (leftCloud != null)
+                leftCloud.anchoredPosition = Vector2.Lerp(Vector2.zero, new Vector2(-offset, 0), eased);
 
+            if (rightCloud != null)
+                rightCloud.anchoredPosition = Vector2.Lerp(Vector2.zero, new Vector2(offset, 0), eased);
+
+            _canvasGroup.alpha = Mathf.Lerp(1f, 0f, eased);
             yield return null;
         }
 
-        _rect.anchoredPosition = to;
-        _canvasGroup.alpha = alphaTo;
+        if (leftCloud != null) leftCloud.anchoredPosition = new Vector2(-offset, 0);
+        if (rightCloud != null) rightCloud.anchoredPosition = new Vector2(offset, 0);
+
+        _canvasGroup.alpha = 0f;
         _canvasGroup.blocksRaycasts = false;
         gameObject.SetActive(false);
     }

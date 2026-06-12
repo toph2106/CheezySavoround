@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dbc3f871ddd3c242bd9fb44f60834fb, type: 3}
+  m_Name: ach_place_100
+  m_EditorClassIdentifier: Assembly-CSharp::AchievementConfig
+  achievementID: ach_place_100
+  displayName: "\u0110\xF4i Tay B\u1EADn R\u1ED9n"
+  description: "\u0110\u1EB7t 100 \u0111\u0129a l\xEAn b\xE0n."
+  icon: {fileID: 0}
+  type: 5
+  targetValue: 100
+  goldReward: 50

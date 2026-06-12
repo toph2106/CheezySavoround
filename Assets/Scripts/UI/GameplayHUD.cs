@@ -4,22 +4,16 @@ using TMPro;
 
 public class GameplayHUD : MonoBehaviour
 {
-    [Tooltip("Kéo Slider UI vào đây (thanh đỏ)")]
     public Slider levelSlider;
 
-    [Tooltip("Text hiện số level HIỆN TẠI (vòng tròn bên trái)")]
     public TextMeshProUGUI currentLevelText;
 
-    [Tooltip("Text hiện số level TIẾP THEO (vòng tròn bên phải)")]
     public TextMeshProUGUI nextLevelText;
 
-    [Tooltip("Text hiện số vàng đang có")]
     public TextMeshProUGUI coinText;
 
-    [Tooltip("Mảng 4 Text (TMP) trên badge đỏ của mỗi công cụ")]
     public TextMeshProUGUI[] boosterCountTexts;
 
-    [Tooltip("Mảng 4 ID booster tương ứng (phải KHỚP với Booster ID trong BoosterShopManager)")]
     public string[] boosterIDs = new string[]
     {
         "11",
@@ -27,8 +21,6 @@ public class GameplayHUD : MonoBehaviour
         "13",
         "14"
     };
-
-    [Tooltip("Tốc độ slider lướt mượt (cao = nhanh)")]
     public float sliderLerpSpeed = 5f;
 
     private float _targetSliderValue = 0f;
@@ -37,15 +29,12 @@ public class GameplayHUD : MonoBehaviour
 
     void Start()
     {
-        // Khởi tạo slider
         if (levelSlider != null)
         {
             levelSlider.minValue = 0f;
             levelSlider.maxValue = 1f;
             levelSlider.value = 0f;
         }
-
-        // Đăng ký sự kiện
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnScoreChanged += OnScoreChanged;
@@ -58,14 +47,7 @@ public class GameplayHUD : MonoBehaviour
             SaveSystem.Instance.OnDataChanged += OnDataChanged;
         }
 
-        // Hiển thị lần đầu
         RefreshAll();
-
-        // === DEBUG: Kiểm tra kết nối ===
-        Debug.Log($"[HUD] levelSlider: {(levelSlider != null ? "OK" : "THIẾU")}");
-        Debug.Log($"[HUD] coinText: {(coinText != null ? "OK" : "THIẾU")}");
-        Debug.Log($"[HUD] currentLevelText: {(currentLevelText != null ? "OK" : "THIẾU")}");
-        Debug.Log($"[HUD] nextLevelText: {(nextLevelText != null ? "OK" : "THIẾU")}");
 
         if (boosterCountTexts == null || boosterCountTexts.Length == 0)
             Debug.LogWarning("[HUD] ⚠️ boosterCountTexts CHƯA KÉO! Size = 0");
@@ -196,7 +178,14 @@ public class GameplayHUD : MonoBehaviour
 
             string id = boosterIDs[i];
             int qty = GetBoosterCount(id);
-            boosterCountTexts[i].text = qty.ToString();
+            if (qty > 0)
+            {
+                boosterCountTexts[i].text = qty.ToString();
+            }
+            else
+            {
+                boosterCountTexts[i].text = "+";
+            }
         }
     }
 

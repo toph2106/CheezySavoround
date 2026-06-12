@@ -32,9 +32,7 @@ public class GridManager : MonoBehaviour
     public float bloomWait = 0.15f;
 
     [Header("Tile Animation")]
-    [Tooltip("Thời gian delay giữa mỗi tile khi spawn")]
     public float tileSpawnDelay = 0.05f;
-    [Tooltip("Thời gian animation scale-up của mỗi tile")]
     public float tileScaleDuration = 0.25f;
 
     public Slot[,] gridArray;
@@ -68,10 +66,6 @@ public class GridManager : MonoBehaviour
             StartCoroutine(GenerateGridAnimated(data));
         }
     }
-
-    /// <summary>
-    /// Xóa toàn bộ grid hiện tại (tất cả tile, plate, pizza) để chuẩn bị load level mới.
-    /// </summary>
     public void ClearGrid()
     {
         if (TrayManager.Instance != null)

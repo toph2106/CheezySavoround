@@ -22,6 +22,11 @@ public class LevelSelectManager : MonoBehaviour
         Instance = this;
     }
 
+    public void Start()
+    {
+        CloseLevel();
+    }
+
     public void OpenMenu()
     {
         if (levelSelectPanel != null)
@@ -60,4 +65,10 @@ public class LevelSelectManager : MonoBehaviour
             }
         }
     }
+    public void CloseLevel()
+    {
+        if (levelSelectPanel != null)
+            levelSelectPanel.SetActive(false);
+    }
+
 }
