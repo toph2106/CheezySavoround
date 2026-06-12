@@ -8,4 +8,6 @@ Game được vận hành theo một vòng lặp cốt lõi dựa trên Máy tr�
 Dự án áp dụng mô hình phân tách dữ liệu để dễ dàng mở rộng:
 - **Dữ liệu tĩnh (Static Data):** Các cấu hình về Level, Chỉ số Thành tựu, Giá tiền Cửa hàng được thiết kế dưới dạng **ScriptableObject** của Unity. Điều này giúp Game Designer dễ dàng tinh chỉnh chỉ số ngay trên Inspector mà không cần chạm vào code.
 - **Dữ liệu động (Dynamic Data - JSON):** Toàn bộ tiến trình của người chơi (Vàng, Skin đã sở hữu, Level hiện tại, Tiến độ thành tựu...) được serialize thành định dạng **JSON** thông qua lớp `UserData`. Dữ liệu JSON này sau đó được hệ thống `SaveSystem` mã hóa (AES Encryption) và lưu xuống file `save.dat` ở bộ nhớ máy (`Application.persistentDataPath`). Khi khởi động, game sẽ đọc file, giải mã và parse lại từ JSON thành Object để sử dụng.
+
+## System Flow Diagram (SFD)
 ![System Flow Diagram](Docs/CheezySavoround.png)
