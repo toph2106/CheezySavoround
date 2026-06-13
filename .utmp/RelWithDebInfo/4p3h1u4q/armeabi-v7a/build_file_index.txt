@@ -1,0 +1,2 @@
+E:\TT\Cheezy Savoround\Library\Bee\Android\Prj\Mono2x\Gradle\unityLibrary\src\main\cpp\CMakeLists.txt
+E:\TT\Cheezy Savoround\Library\Bee\Android\Prj\Mono2x\Gradle\unityLibrary\src\main\cpp\GameActivity\CMakeLists.txt
